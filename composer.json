@@ -1,0 +1,42 @@
+{
+    "name": "lav45/yii2-behaviors",
+    "description": "This is a set of Yii2 behaviors extensions",
+    "keywords": [
+        "yii2",
+        "extension",
+        "behavior"
+    ],
+    "homepage": "https://github.com/lav45/yii2-behaviors",
+    "type": "yii2-extension",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Alexey Loban",
+            "email": "lav451@gmail.com"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "2.0.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.* | 5.*",
+        "phpunit/dbunit": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "lav45\\behaviors\\": "src",
+            "lav45\\behaviors\\tests\\": "tests"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1.x-dev"
+        }
+    }
+}
