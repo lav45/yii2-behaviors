@@ -2,7 +2,7 @@
 
 use yii\db\Migration;
 
-class m171004_005025_replicationBehavior extends Migration
+class m171004_005025_ReplicationBehavior extends Migration
 {
     public function up()
     {

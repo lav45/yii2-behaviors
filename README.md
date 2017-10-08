@@ -74,6 +74,44 @@ This extension will help you to copy data from one table to the remote and to ma
 ```
 
 
+## Using SerializeBehavior
+
+This extension will help you to create a virtual field for your ActiveRecord models which will store the serialized data in one of the fields of the model.
+
+```php
+/**
+ * Class News
+ *
+ * @property integer $id
+ * @property string $_data
+ *
+ * // Virtual attributes
+ * @property string $title
+ * @property array $meta
+ * @property bool $is_active
+ * @property integer $publish_date
+ */
+class News extends ActiveRecord
+{
+    public function behaviors()
+    {
+        return [
+            'serialize' => [
+                'class' => 'lav45\behaviors\SerializeBehavior',
+                'targetAttribute' => '_data',
+                'attributes' => [
+                    'title',
+                    'meta',
+                    'is_active',
+                    'publish_date',
+                ]
+            ]
+        ];
+    } 
+}
+```
+
+
 ## License
 
 **yii2-behaviors** it is available under a BSD 3-Clause License. Detailed information can be found in the `LICENSE.md`.

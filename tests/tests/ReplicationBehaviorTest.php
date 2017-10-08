@@ -6,7 +6,7 @@
  * Time: 0:42
  */
 
-namespace lav45\behaviors\tests;
+namespace lav45\behaviors\tests\tests;
 
 use lav45\behaviors\tests\models\Page;
 use lav45\behaviors\tests\models\PageReplication;
@@ -31,10 +31,11 @@ class ReplicationBehaviorTest extends \PHPUnit_Framework_TestCase
     {
         $model = Page::findOne(1);
         $this->assertNotNull($model);
+        $this->assertTrue($model->save(false));
 
         $newText = 'update text';
         $model->text = $newText;
-        $this->assertTrue($model->save());
+        $this->assertTrue($model->save(false));
 
         $this->assertEquals($model->pageReplication->description, $newText);
     }

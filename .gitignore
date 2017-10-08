@@ -26,4 +26,6 @@ phpunit.phar
 # local phpunit config
 /phpunit.xml
 
+/src/.draft
+/coverage
 /composer.lock
