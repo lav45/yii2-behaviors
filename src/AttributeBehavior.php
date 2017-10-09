@@ -22,8 +22,12 @@ abstract class AttributeBehavior extends Behavior
      */
     public function setAttributes(array $data)
     {
-        if (!empty($data)) {
-            $this->_attributes = array_flip($data);
+        foreach ($data as $key => $value) {
+            if (is_int($key)) {
+                $key = $value;
+                $value = null;
+            }
+            $this->_attributes[$key] = $value;
         }
     }
 
@@ -31,7 +35,20 @@ abstract class AttributeBehavior extends Behavior
      * @param string $name
      * @return mixed
      */
-    abstract protected function getValue($name);
+    protected function getValue($name)
+    {
+        if (isset($this->_attributes[$name])) {
+            $value = $this->_attributes[$name];
+
+            if (is_callable($value, true)) {
+                return call_user_func($value);
+            }
+
+            return $value;
+        }
+
+        return null;
+    }
 
     /**
      * @param string $name

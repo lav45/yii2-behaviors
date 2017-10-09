@@ -28,11 +28,11 @@ class SerializeBehavior extends AttributeBehavior
     /**
      * @var array
      */
-    private $data;
+    private $data = [];
     /**
      * @var array
      */
-    private $_oldData;
+    private $_oldData = [];
 
     /**
      * @inheritdoc
@@ -76,9 +76,13 @@ class SerializeBehavior extends AttributeBehavior
         }
     }
 
+    /**
+     * @param string $name
+     * @return mixed|null
+     */
     public function getOldAttribute($name)
     {
-        return isset($this->_oldData[$name]) ? $this->_oldData[$name] : null;
+        return isset($this->_oldData[$name]) || array_key_exists($name, $this->_oldData) ? $this->_oldData[$name] : null;
     }
 
     /**
@@ -105,7 +109,7 @@ class SerializeBehavior extends AttributeBehavior
      */
     protected function getValue($name)
     {
-        return isset($this->data[$name]) ? $this->data[$name] : null;
+        return isset($this->data[$name]) || array_key_exists($name, $this->data) ? $this->data[$name] : parent::getValue($name);
     }
 
     /**

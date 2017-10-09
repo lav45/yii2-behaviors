@@ -14,7 +14,9 @@ use yii\db\ActiveRecord;
  * @property string $title
  * @property array $meta
  * @property bool $is_active
- * @property integer $publish_date
+ * @property int $publish_date
+ * @property int $defaultValue
+ * @property int $defaultFunc
  */
 class News extends ActiveRecord
 {
@@ -26,9 +28,16 @@ class News extends ActiveRecord
                 'targetAttribute' => '_data',
                 'attributes' => [
                     'title',
-                    'meta',
-                    'is_active',
+                    'meta' => [
+                        'keywords' => null,
+                        'description' => null,
+                    ],
+                    'is_active' => true,
                     'publish_date',
+                    'defaultValue' => 1,
+                    'defaultFunc' => function() {
+                        return $this->id;
+                    }
                 ]
             ]
         ];

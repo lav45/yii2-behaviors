@@ -29,6 +29,9 @@ class SerializeBehaviorTest extends \PHPUnit_Framework_TestCase
 
         self::assertEquals($model->update(false), 0);
 
+        $model->is_active = 1;
+        self::assertTrue($model->isAttributeChanged('is_active'));
+
         /** @var News $model */
         $model = News::findOne($model->id);
 
@@ -55,5 +58,36 @@ class SerializeBehaviorTest extends \PHPUnit_Framework_TestCase
         self::assertTrue($model->isAttributeChanged('is_active', true));
 
         self::assertFalse($model->getSerializeBehavior()->isAttributeChanged('not_fount_attribute'));
+    }
+
+    public function testGetDefaultValue()
+    {
+        $model = new News();
+
+        self::assertEquals($model->is_active, true);
+        self::assertEquals($model->publish_date, null);
+        self::assertEquals($model->defaultValue, 1);
+        self::assertEquals($model->meta['keywords'], null);
+
+        self::assertEquals($model->defaultFunc, null);
+        self::assertTrue($model->save(false));
+        self::assertEquals($model->defaultFunc, $model->id);
+
+        self::assertEquals($model->_data, '[]');
+
+        $model->is_active = null;
+        $model->save(false);
+
+        self::assertEquals($model->is_active, null);
+        self::assertEquals($model->_data, '{"is_active":null}');
+    }
+
+    public function testIsset()
+    {
+        $model = new News();
+
+        self::assertTrue(isset($model->defaultValue));
+        unset($model->defaultValue);
+        self::assertFalse(isset($model->defaultValue));
     }
 }
