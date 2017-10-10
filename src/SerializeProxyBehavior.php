@@ -5,21 +5,16 @@ namespace lav45\behaviors;
 use yii\db\ActiveRecord;
 
 /**
- * Class SerializeBehavior
+ * Class SerializeProxyBehavior
  * @package lav45\behaviors
  * @property ActiveRecord $owner
  * @property-write array $attributes
  */
-class SerializeBehavior extends AttributeBehavior
+class SerializeProxyBehavior extends AttributeBehavior
 {
     use SerializeTrait;
 
     use ChangeAttributesTrait;
-
-    /**
-     * @var string
-     */
-    public $storageAttribute;
 
     /**
      * @inheritdoc
@@ -35,15 +30,19 @@ class SerializeBehavior extends AttributeBehavior
 
     public function loadData()
     {
-        $this->data = $this->decode($this->owner[$this->storageAttribute]);
-        $this->oldData = $this->data;
+        foreach ($this->attributes as $target => $storage) {
+            $this->data[$target] = $this->decode($this->owner[$storage]);
+            $this->oldData[$target] = $this->data[$target];
+        }
     }
 
     public function saveData()
     {
-        if (!empty($this->data)) {
-            $this->oldData = $this->data;
-            $this->owner[$this->storageAttribute] = $this->encode($this->data);
+        foreach ($this->attributes as $target => $storage) {
+            if (isset($this->data[$target]) || array_key_exists($target, $this->data)) {
+                $this->oldData[$target] = $this->data[$target];
+                $this->owner[$storage] = $this->encode($this->data[$target]);
+            }
         }
     }
 
@@ -52,13 +51,7 @@ class SerializeBehavior extends AttributeBehavior
      */
     public function setAttributes(array $data)
     {
-        foreach ($data as $key => $value) {
-            if (is_int($key)) {
-                $this->attributes[$value] = null;
-            } else {
-                $this->attributes[$key] = $value;
-            }
-        }
+        $this->attributes = $data;
     }
 
     /**
@@ -70,14 +63,7 @@ class SerializeBehavior extends AttributeBehavior
         if (isset($this->data[$name]) || array_key_exists($name, $this->data)) {
             return $this->data[$name];
         }
-
-        $value = $this->attributes[$name];
-
-        if ($value instanceof \Closure) {
-            return call_user_func($value);
-        }
-
-        return $value;
+        return null;
     }
 
     /**

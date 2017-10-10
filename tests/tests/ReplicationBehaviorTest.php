@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: lav45
- * Date: 04.10.17
- * Time: 0:42
- */
 
 namespace lav45\behaviors\tests\tests;
 

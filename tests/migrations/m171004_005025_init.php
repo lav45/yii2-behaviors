@@ -2,7 +2,7 @@
 
 use yii\db\Migration;
 
-class m171004_005025_ReplicationBehavior extends Migration
+class m171004_005025_init extends Migration
 {
     public function up()
     {
@@ -18,6 +18,13 @@ class m171004_005025_ReplicationBehavior extends Migration
             'description' => $this->string(500)->notNull(),
             'createdAt' => $this->integer()->notNull(),
             'updatedAt' => $this->integer()->notNull(),
+        ]);
+
+        $this->createTable('news', [
+            'id' => $this->primaryKey(),
+            '_data' => $this->text(),
+            '_tags' => $this->text(),
+            '_options' => $this->text(),
         ]);
     }
 }

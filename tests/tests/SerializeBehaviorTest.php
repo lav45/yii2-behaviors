@@ -16,17 +16,15 @@ class SerializeBehaviorTest extends \PHPUnit_Framework_TestCase
                 'keywords' => 'meta key words',
             ],
             'is_active' => true,
-            'publish_date' => time(),
         ];
     }
 
     public function testCreate()
     {
         $data = $this->getDefaultData();
-
         $model = new News($data);
-        self::assertTrue($model->insert(false));
 
+        self::assertTrue($model->insert(false));
         self::assertEquals($model->update(false), 0);
 
         $model->is_active = 1;
@@ -38,14 +36,16 @@ class SerializeBehaviorTest extends \PHPUnit_Framework_TestCase
         self::assertEquals($model->title, $data['title']);
         self::assertEquals($model->meta, $data['meta']);
         self::assertEquals($model->is_active, $data['is_active']);
-        self::assertEquals($model->publish_date, $data['publish_date']);
         self::assertEquals($model->_data, json_encode($data, 320));
     }
 
     public function testUpdate()
     {
-        /** @var News $model */
-        $model = News::findOne(1);
+        $data = $this->getDefaultData();
+        $model = new News($data);
+
+        self::assertTrue($model->save(false));
+
         $model->title = 'new title';
         $model->is_active = 1;
 
@@ -65,7 +65,7 @@ class SerializeBehaviorTest extends \PHPUnit_Framework_TestCase
         $model = new News();
 
         self::assertEquals($model->is_active, true);
-        self::assertEquals($model->publish_date, null);
+        self::assertEquals($model->title, null);
         self::assertEquals($model->defaultValue, 1);
         self::assertEquals($model->meta['keywords'], null);
 
@@ -73,7 +73,7 @@ class SerializeBehaviorTest extends \PHPUnit_Framework_TestCase
         self::assertTrue($model->save(false));
         self::assertEquals($model->defaultFunc, $model->id);
 
-        self::assertEquals($model->_data, '[]');
+        self::assertEquals($model->_data, null);
 
         $model->is_active = null;
         $model->save(false);

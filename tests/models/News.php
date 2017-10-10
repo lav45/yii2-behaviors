@@ -10,13 +10,18 @@ use yii\db\ActiveRecord;
  *
  * @property integer $id
  * @property string $_data
+ * @property string $_tags
+ * @property string $_options
  *
+ * Virtual attributes
+ * ---------------------------
  * @property string $title
  * @property array $meta
  * @property bool $is_active
- * @property int $publish_date
  * @property int $defaultValue
  * @property int $defaultFunc
+ * @property array $tags
+ * @property array $options
  */
 class News extends ActiveRecord
 {
@@ -25,7 +30,7 @@ class News extends ActiveRecord
         return [
             'serialize' => [
                 'class' => 'lav45\behaviors\SerializeBehavior',
-                'targetAttribute' => '_data',
+                'storageAttribute' => '_data',
                 'attributes' => [
                     'title',
                     'meta' => [
@@ -33,11 +38,17 @@ class News extends ActiveRecord
                         'description' => null,
                     ],
                     'is_active' => true,
-                    'publish_date',
                     'defaultValue' => 1,
                     'defaultFunc' => function() {
                         return $this->id;
                     }
+                ]
+            ],
+            'serializeProxy' => [
+                'class' => 'lav45\behaviors\SerializeProxyBehavior',
+                'attributes' => [
+                    'tags' => '_tags',
+                    'options' => '_options',
                 ]
             ]
         ];
@@ -53,25 +64,52 @@ class News extends ActiveRecord
         return $behavior;
     }
 
+    /**
+     * @return \lav45\behaviors\SerializeProxyBehavior
+     */
+    public function getSerializeProxyBehavior()
+    {
+        /** @var \lav45\behaviors\SerializeProxyBehavior $behavior */
+        $behavior = $this->getBehavior('serializeProxy');
+        return $behavior;
+    }
+
+    /**
+     * @param string $name
+     * @param bool $identical
+     * @return bool
+     */
     public function isAttributeChanged($name, $identical = true)
     {
         $serialize = $this->getSerializeBehavior();
-
-        if ($serialize->isAttribute($name)) {
+        if ($serialize->canGetProperty($name)) {
             return $serialize->isAttributeChanged($name, $identical);
-        } else {
-            return parent::isAttributeChanged($name, $identical);
         }
+
+        $serializeProxy = $this->getSerializeProxyBehavior();
+        if ($serializeProxy->canGetProperty($name)) {
+            return $serializeProxy->isAttributeChanged($name, $identical);
+        }
+
+        return parent::isAttributeChanged($name, $identical);
     }
 
+    /**
+     * @param string $name
+     * @return mixed|null
+     */
     public function getOldAttribute($name)
     {
         $serialize = $this->getSerializeBehavior();
-
-        if ($serialize->isAttribute($name)) {
+        if ($serialize->canGetProperty($name)) {
             return $serialize->getOldAttribute($name);
-        } else {
-            return parent::getOldAttribute($name);
         }
+
+        $serializeProxy = $this->getSerializeProxyBehavior();
+        if ($serializeProxy->canGetProperty($name)) {
+            return $serializeProxy->getOldAttribute($name);
+        }
+
+        return parent::getOldAttribute($name);
     }
 }

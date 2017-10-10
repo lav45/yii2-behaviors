@@ -7,48 +7,19 @@ use yii\base\Behavior;
 /**
  * Class AttributeBehavior
  * @package lav45\behaviors
- *
- * @property-write array $attributes
  */
 abstract class AttributeBehavior extends Behavior
 {
     /**
      * @var array flip target attributes
      */
-    private $_attributes = [];
-
-    /**
-     * @param array $data
-     */
-    public function setAttributes(array $data)
-    {
-        foreach ($data as $key => $value) {
-            if (is_int($key)) {
-                $key = $value;
-                $value = null;
-            }
-            $this->_attributes[$key] = $value;
-        }
-    }
+    protected $attributes = [];
 
     /**
      * @param string $name
      * @return mixed
      */
-    protected function getValue($name)
-    {
-        if (isset($this->_attributes[$name])) {
-            $value = $this->_attributes[$name];
-
-            if (is_callable($value, true)) {
-                return call_user_func($value);
-            }
-
-            return $value;
-        }
-
-        return null;
-    }
+    abstract protected function getValue($name);
 
     /**
      * @param string $name
@@ -60,9 +31,9 @@ abstract class AttributeBehavior extends Behavior
      * @param string $name
      * @return bool
      */
-    public function isAttribute($name)
+    protected function isAttribute($name)
     {
-        return array_key_exists($name, $this->_attributes);
+        return isset($this->attributes[$name]) || array_key_exists($name, $this->attributes);
     }
 
     /**
