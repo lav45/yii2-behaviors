@@ -17,6 +17,13 @@ use yii\db\ActiveRecord;
  */
 class Page extends ActiveRecord
 {
+    public function transactions()
+    {
+        return [
+            ActiveRecord::SCENARIO_DEFAULT => ActiveRecord::OP_ALL,
+        ];
+    }
+
     public function behaviors()
     {
         return [

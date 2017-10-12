@@ -22,6 +22,16 @@ echo $replicationModel->description; // some text
 ```php
 class Page extends ActiveRecord
 {
+    /**
+     * It would be nice to use transaction
+     */
+    public function transactions()
+    {
+        return [
+            ActiveRecord::SCENARIO_DEFAULT => ActiveRecord::OP_ALL,
+        ];
+    }
+
     public function behaviors()
     {
         return [
