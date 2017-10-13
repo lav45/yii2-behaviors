@@ -41,7 +41,7 @@ class SerializeBehavior extends AttributeBehavior
 
     public function saveData()
     {
-        if (!empty($this->data)) {
+        if ($this->data !== $this->oldData) {
             $this->oldData = $this->data;
             $this->owner[$this->storageAttribute] = $this->encode($this->data);
         }
