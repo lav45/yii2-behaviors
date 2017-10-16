@@ -10,20 +10,33 @@ class ReplicationBehaviorTest extends \PHPUnit_Framework_TestCase
     public function testCreate()
     {
         $model = new Page();
-        $model->id = 1;
         $model->text = 'text';
-        $this->assertTrue($model->save());
+        $model->created_at = time();
+        $model->updated_at = time();
+        $model->detachBehaviors();
+        $this->assertTrue($model->save(false)); // autoincrement id = 1
+
+        $model = new Page();
+        $model->text = 'text';
+        $this->assertTrue($model->save(false)); // autoincrement id = 2
 
         $replicationModel = PageReplication::findOne($model->id);
         $this->assertNotNull($replicationModel);
+        $this->assertEquals($replicationModel->id, $model->id);
         $this->assertEquals($replicationModel->description, $model->text);
         $this->assertEquals($replicationModel->updatedAt, $model->updated_at);
         $this->assertEquals($replicationModel->createdAt, $model->created_at);
+
+        $this->assertTrue(Page::find()->count() > PageReplication::find()->count());
     }
 
     public function testUpdate()
     {
-        $model = Page::findOne(1);
+        $model = new Page();
+        $model->text = 'text';
+        $this->assertTrue($model->save(false));
+
+        $model = Page::findOne($model->id);
         $this->assertNotNull($model);
         $this->assertTrue($model->save(false));
 
@@ -36,10 +49,14 @@ class ReplicationBehaviorTest extends \PHPUnit_Framework_TestCase
 
     public function testDelete()
     {
-        $model = Page::findOne(1);
+        $model = new Page();
+        $model->text = 'text';
+        $this->assertTrue($model->save(false));
+
+        $model = Page::findOne($model->id);
         $this->assertEquals($model->delete(), 1);
 
-        $replicationModel = PageReplication::findOne(1);
+        $replicationModel = PageReplication::findOne($model->id);
         $this->assertNull($replicationModel);
     }
 }
