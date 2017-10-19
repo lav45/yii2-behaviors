@@ -82,12 +82,12 @@ class News extends ActiveRecord
     public function isAttributeChanged($name, $identical = true)
     {
         $serialize = $this->getSerializeBehavior();
-        if ($serialize->canGetProperty($name)) {
+        if ($serialize->isAttribute($name)) {
             return $serialize->isAttributeChanged($name, $identical);
         }
 
         $serializeProxy = $this->getSerializeProxyBehavior();
-        if ($serializeProxy->canGetProperty($name)) {
+        if ($serializeProxy->isAttribute($name)) {
             return $serializeProxy->isAttributeChanged($name, $identical);
         }
 
@@ -101,12 +101,12 @@ class News extends ActiveRecord
     public function getOldAttribute($name)
     {
         $serialize = $this->getSerializeBehavior();
-        if ($serialize->canGetProperty($name)) {
+        if ($serialize->isAttribute($name)) {
             return $serialize->getOldAttribute($name);
         }
 
         $serializeProxy = $this->getSerializeProxyBehavior();
-        if ($serializeProxy->canGetProperty($name)) {
+        if ($serializeProxy->isAttribute($name)) {
             return $serializeProxy->getOldAttribute($name);
         }
 

@@ -31,7 +31,7 @@ abstract class AttributeBehavior extends Behavior
      * @param string $name
      * @return bool
      */
-    protected function isAttribute($name)
+    public function isAttribute($name)
     {
         return isset($this->attributes[$name]) || array_key_exists($name, $this->attributes);
     }

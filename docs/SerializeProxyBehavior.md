@@ -46,6 +46,32 @@ class News extends ActiveRecord
                 ]
             ]
         ];
-    } 
+    }
+
+    /**
+     * @return \lav45\behaviors\SerializeProxyBehavior
+     */
+    protected function getSerializeProxyBehavior()
+    {
+        return $this->getBehavior('serializeProxy');
+    }
+
+    public function isAttributeChanged($name, $identical = true)
+    {
+        $serialize = $this->getSerializeProxyBehavior();
+        if ($serialize->isAttribute($name)) {
+            return $serialize->isAttributeChanged($name, $identical);
+        }
+        return parent::isAttributeChanged($name, $identical);
+    }
+
+    public function getOldAttribute($name)
+    {
+        $serialize = $this->getSerializeProxyBehavior();
+        if ($serialize->isAttribute($name)) {
+            return $serialize->getOldAttribute($name);
+        }
+        return parent::getOldAttribute($name);
+    }
 }
 ```
