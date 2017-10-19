@@ -3,6 +3,7 @@
 namespace lav45\behaviors\tests\models;
 
 use yii\db\ActiveRecord;
+use lav45\behaviors\VirtualAttributesTrait;
 
 /**
  * Class News
@@ -25,6 +26,8 @@ use yii\db\ActiveRecord;
  */
 class News extends ActiveRecord
 {
+    use VirtualAttributesTrait;
+
     public function behaviors()
     {
         return [
@@ -52,64 +55,5 @@ class News extends ActiveRecord
                 ]
             ]
         ];
-    }
-
-    /**
-     * @return \lav45\behaviors\SerializeBehavior
-     */
-    public function getSerializeBehavior()
-    {
-        /** @var \lav45\behaviors\SerializeBehavior $behavior */
-        $behavior = $this->getBehavior('serialize');
-        return $behavior;
-    }
-
-    /**
-     * @return \lav45\behaviors\SerializeProxyBehavior
-     */
-    public function getSerializeProxyBehavior()
-    {
-        /** @var \lav45\behaviors\SerializeProxyBehavior $behavior */
-        $behavior = $this->getBehavior('serializeProxy');
-        return $behavior;
-    }
-
-    /**
-     * @param string $name
-     * @param bool $identical
-     * @return bool
-     */
-    public function isAttributeChanged($name, $identical = true)
-    {
-        $serialize = $this->getSerializeBehavior();
-        if ($serialize->isAttribute($name)) {
-            return $serialize->isAttributeChanged($name, $identical);
-        }
-
-        $serializeProxy = $this->getSerializeProxyBehavior();
-        if ($serializeProxy->isAttribute($name)) {
-            return $serializeProxy->isAttributeChanged($name, $identical);
-        }
-
-        return parent::isAttributeChanged($name, $identical);
-    }
-
-    /**
-     * @param string $name
-     * @return mixed|null
-     */
-    public function getOldAttribute($name)
-    {
-        $serialize = $this->getSerializeBehavior();
-        if ($serialize->isAttribute($name)) {
-            return $serialize->getOldAttribute($name);
-        }
-
-        $serializeProxy = $this->getSerializeProxyBehavior();
-        if ($serializeProxy->isAttribute($name)) {
-            return $serializeProxy->getOldAttribute($name);
-        }
-
-        return parent::getOldAttribute($name);
     }
 }

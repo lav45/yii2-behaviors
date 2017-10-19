@@ -19,19 +19,19 @@ abstract class AttributeBehavior extends Behavior
      * @param string $name
      * @return mixed
      */
-    abstract protected function getValue($name);
+    abstract public function getAttribute($name);
 
     /**
      * @param string $name
      * @param mixed $value
      */
-    abstract protected function setValue($name, $value);
+    abstract public function setAttribute($name, $value);
 
     /**
      * @param string $name
      * @return bool
      */
-    public function isAttribute($name)
+    public function hasAttribute($name)
     {
         return isset($this->attributes[$name]) || array_key_exists($name, $this->attributes);
     }
@@ -41,7 +41,7 @@ abstract class AttributeBehavior extends Behavior
      */
     public function canGetProperty($name, $checkVars = true)
     {
-        return $this->isAttribute($name) || parent::canGetProperty($name, $checkVars);
+        return $this->hasAttribute($name) || parent::canGetProperty($name, $checkVars);
     }
 
     /**
@@ -49,7 +49,7 @@ abstract class AttributeBehavior extends Behavior
      */
     public function canSetProperty($name, $checkVars = true)
     {
-        return $this->isAttribute($name) || parent::canSetProperty($name, $checkVars);
+        return $this->hasAttribute($name) || parent::canSetProperty($name, $checkVars);
     }
 
     /**
@@ -57,7 +57,7 @@ abstract class AttributeBehavior extends Behavior
      */
     public function __get($name)
     {
-        return $this->isAttribute($name) ? $this->getValue($name) : parent::__get($name);
+        return $this->hasAttribute($name) ? $this->getAttribute($name) : parent::__get($name);
     }
 
     /**
@@ -65,8 +65,8 @@ abstract class AttributeBehavior extends Behavior
      */
     public function __set($name, $value)
     {
-        if ($this->isAttribute($name)) {
-            $this->setValue($name, $value);
+        if ($this->hasAttribute($name)) {
+            $this->setAttribute($name, $value);
         } else {
             parent::__set($name, $value);
         }

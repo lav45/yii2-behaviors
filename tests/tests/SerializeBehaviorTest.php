@@ -44,7 +44,12 @@ class SerializeBehaviorTest extends \PHPUnit_Framework_TestCase
         $data = $this->getDefaultData();
         $model = new News($data);
 
+        $model->id = 2;
+        self::assertTrue($model->isAttributeChanged('id'));
+
+        self::assertEquals($model->getOldAttribute('id'), null);
         self::assertTrue($model->save(false));
+        self::assertEquals($model->getOldAttribute('id'), $model->id);
 
         $model->title = 'new title';
         $model->is_active = 1;
@@ -57,7 +62,9 @@ class SerializeBehaviorTest extends \PHPUnit_Framework_TestCase
         self::assertFalse($model->isAttributeChanged('is_active', false));
         self::assertTrue($model->isAttributeChanged('is_active', true));
 
-        self::assertFalse($model->getSerializeBehavior()->isAttributeChanged('not_fount_attribute'));
+        self::assertEquals($model->getAttribute('not_fount_attribute'), null);
+        self::assertEquals($model->getOldAttribute('not_fount_attribute'), null);
+        self::assertFalse($model->isAttributeChanged('not_fount_attribute'));
     }
 
     public function testGetDefaultValue()
@@ -65,6 +72,8 @@ class SerializeBehaviorTest extends \PHPUnit_Framework_TestCase
         $model = new News();
 
         self::assertEquals($model->is_active, true);
+        self::assertEquals($model->getAttribute('is_active'), true);
+
         self::assertEquals($model->title, null);
         self::assertEquals($model->defaultValue, 1);
         self::assertEquals($model->meta['keywords'], null);
@@ -74,6 +83,7 @@ class SerializeBehaviorTest extends \PHPUnit_Framework_TestCase
         self::assertEquals($model->defaultFunc, $model->id);
 
         self::assertEquals($model->_data, null);
+        self::assertEquals($model->getAttribute('id'), $model->id);
 
         $model->is_active = null;
         $model->save(false);

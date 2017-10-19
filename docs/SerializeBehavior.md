@@ -25,6 +25,9 @@ print_r($model->_data); // {"is_active": 1}
 ## Configuration
 
 ```php
+use yii\db\ActiveRecord;
+use lav45\behaviors\VirtualAttributesTrait;
+
 /**
  * @property string $_data
  *
@@ -36,6 +39,12 @@ print_r($model->_data); // {"is_active": 1}
  */
 class News extends ActiveRecord
 {
+    /**
+     * This trait provides support for virtual methods `getAttribute()`, `getOldAttribute()`, `isAttributeChanged()`
+     * that implement Behaviors
+     */
+    use VirtualAttributesTrait;
+
     public function behaviors()
     {
         return [
@@ -52,32 +61,6 @@ class News extends ActiveRecord
                 ]
             ]
         ];
-    }
-    
-    /**
-     * @return \lav45\behaviors\SerializeBehavior
-     */
-    protected function getSerializeBehavior()
-    {
-        return $this->getBehavior('serialize');
-    }
-
-    public function isAttributeChanged($name, $identical = true)
-    {
-        $serialize = $this->getSerializeBehavior();
-        if ($serialize->isAttribute($name)) {
-            return $serialize->isAttributeChanged($name, $identical);
-        }
-        return parent::isAttributeChanged($name, $identical);
-    }
-
-    public function getOldAttribute($name)
-    {
-        $serialize = $this->getSerializeBehavior();
-        if ($serialize->isAttribute($name)) {
-            return $serialize->getOldAttribute($name);
-        }
-        return parent::getOldAttribute($name);
     }
 }
 ```

@@ -3,6 +3,8 @@
 namespace lav45\behaviors;
 
 use yii\db\ActiveRecord;
+use lav45\behaviors\contracts\AttributeChangeInterface;
+use lav45\behaviors\contracts\OldAttributeInterface;
 
 /**
  * Class SerializeBehavior
@@ -10,7 +12,7 @@ use yii\db\ActiveRecord;
  * @property ActiveRecord $owner
  * @property-write array $attributes
  */
-class SerializeBehavior extends AttributeBehavior
+class SerializeBehavior extends AttributeBehavior implements AttributeChangeInterface, OldAttributeInterface
 {
     use SerializeTrait;
 
@@ -65,7 +67,7 @@ class SerializeBehavior extends AttributeBehavior
      * @param string $name
      * @return mixed
      */
-    protected function getValue($name)
+    public function getAttribute($name)
     {
         if (isset($this->data[$name]) || array_key_exists($name, $this->data)) {
             return $this->data[$name];
@@ -84,7 +86,7 @@ class SerializeBehavior extends AttributeBehavior
      * @param string $name
      * @param mixed $value
      */
-    protected function setValue($name, $value)
+    public function setAttribute($name, $value)
     {
         $this->data[$name] = $value;
     }

@@ -24,6 +24,9 @@ echo $model->_options; // {"key1":"value1","key2":"value2","key3":"value3"}
 ## Configuration
 
 ```php
+use yii\db\ActiveRecord;
+use lav45\behaviors\VirtualAttributesTrait;
+
 /**
  * @property string $_tags
  * @property string $_options
@@ -35,6 +38,12 @@ echo $model->_options; // {"key1":"value1","key2":"value2","key3":"value3"}
  */
 class News extends ActiveRecord
 {
+    /**
+     * This trait provides support for virtual methods `getAttribute()`, `getOldAttribute()`, `isAttributeChanged()`
+     * that implement Behaviors
+     */
+    use VirtualAttributesTrait;
+
     public function behaviors()
     {
         return [
@@ -46,32 +55,6 @@ class News extends ActiveRecord
                 ]
             ]
         ];
-    }
-
-    /**
-     * @return \lav45\behaviors\SerializeProxyBehavior
-     */
-    protected function getSerializeProxyBehavior()
-    {
-        return $this->getBehavior('serializeProxy');
-    }
-
-    public function isAttributeChanged($name, $identical = true)
-    {
-        $serialize = $this->getSerializeProxyBehavior();
-        if ($serialize->isAttribute($name)) {
-            return $serialize->isAttributeChanged($name, $identical);
-        }
-        return parent::isAttributeChanged($name, $identical);
-    }
-
-    public function getOldAttribute($name)
-    {
-        $serialize = $this->getSerializeProxyBehavior();
-        if ($serialize->isAttribute($name)) {
-            return $serialize->getOldAttribute($name);
-        }
-        return parent::getOldAttribute($name);
     }
 }
 ```
