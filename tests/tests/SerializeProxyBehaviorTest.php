@@ -26,25 +26,25 @@ class SerializeProxyBehaviorTest extends \PHPUnit_Framework_TestCase
 
         $model = new News();
 
-        self::assertEquals($model->tags, null);
-        self::assertEquals($model->options, null);
+        $this->assertEquals($model->tags, null);
+        $this->assertEquals($model->options, null);
 
-        self::assertTrue($model->insert(false));
-        self::assertEquals($model->update(false), 0);
+        $this->assertTrue($model->insert(false));
+        $this->assertEquals($model->update(false), 0);
 
-        self::assertEquals($model->_tags, null);
-        self::assertEquals($model->_options, null);
+        $this->assertEquals($model->_tags, null);
+        $this->assertEquals($model->_options, null);
 
         $model->tags = $tags;
         $model->options = $options;
-        self::assertTrue($model->save(false));
+        $this->assertTrue($model->save(false));
 
-        self::assertEquals($model->_tags, json_encode($tags, 320));
-        self::assertEquals($model->_options, json_encode($options, 320));
+        $this->assertEquals($model->_tags, json_encode($tags, 320));
+        $this->assertEquals($model->_options, json_encode($options, 320));
 
         $model = News::findOne($model->id);
-        self::assertEquals($model->tags, $tags);
-        self::assertEquals($model->options, $options);
+        $this->assertEquals($model->tags, $tags);
+        $this->assertEquals($model->options, $options);
     }
 
     public function testUpdate()
@@ -52,25 +52,25 @@ class SerializeProxyBehaviorTest extends \PHPUnit_Framework_TestCase
         $data = $this->getDefaultData();
         $model = new News($data);
 
-        self::assertTrue($model->save(false));
+        $this->assertTrue($model->save(false));
 
         $model->tags = ['new tag'];
         $model->options = null;
 
-        self::assertTrue($model->isAttributeChanged('tags'));
-        self::assertEquals($model->getOldAttribute('tags'), $data['tags']);
-        self::assertTrue($model->isAttributeChanged('options'));
-        self::assertEquals($model->getOldAttribute('options'), $data['options']);
+        $this->assertTrue($model->isAttributeChanged('tags'));
+        $this->assertEquals($model->getOldAttribute('tags'), $data['tags']);
+        $this->assertTrue($model->isAttributeChanged('options'));
+        $this->assertEquals($model->getOldAttribute('options'), $data['options']);
 
-        self::assertEquals($model->update(false), 1);
+        $this->assertEquals($model->update(false), 1);
 
         /** @var News $model */
         $model = News::findOne($model->id);
 
-        self::assertFalse($model->isAttributeChanged('tags'));
-        self::assertFalse($model->isAttributeChanged('options'));
+        $this->assertFalse($model->isAttributeChanged('tags'));
+        $this->assertFalse($model->isAttributeChanged('options'));
 
-        self::assertEquals($model->tags, ['new tag']);
-        self::assertEquals($model->options, null);
+        $this->assertEquals($model->tags, ['new tag']);
+        $this->assertEquals($model->options, null);
     }
 }

@@ -9,6 +9,7 @@ use lav45\behaviors\contracts\OldAttributeInterface;
 /**
  * Class SerializeBehavior
  * @package lav45\behaviors
+ *
  * @property ActiveRecord $owner
  * @property-write array $attributes
  */

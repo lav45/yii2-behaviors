@@ -10,6 +10,7 @@ use yii\helpers\ArrayHelper;
 /**
  * Class ReplicationBehavior
  * @package lav45\behaviors
+ *
  * @property ActiveRecord $owner
  */
 class ReplicationBehavior extends Behavior

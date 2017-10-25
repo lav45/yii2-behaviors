@@ -24,19 +24,19 @@ class SerializeBehaviorTest extends \PHPUnit_Framework_TestCase
         $data = $this->getDefaultData();
         $model = new News($data);
 
-        self::assertTrue($model->insert(false));
-        self::assertEquals($model->update(false), 0);
+        $this->assertTrue($model->insert(false));
+        $this->assertEquals($model->update(false), 0);
 
         $model->is_active = 1;
-        self::assertTrue($model->isAttributeChanged('is_active'));
+        $this->assertTrue($model->isAttributeChanged('is_active'));
 
         /** @var News $model */
         $model = News::findOne($model->id);
 
-        self::assertEquals($model->title, $data['title']);
-        self::assertEquals($model->meta, $data['meta']);
-        self::assertEquals($model->is_active, $data['is_active']);
-        self::assertEquals($model->_data, json_encode($data, 320));
+        $this->assertEquals($model->title, $data['title']);
+        $this->assertEquals($model->meta, $data['meta']);
+        $this->assertEquals($model->is_active, $data['is_active']);
+        $this->assertEquals($model->_data, json_encode($data, 320));
     }
 
     public function testUpdate()
@@ -45,59 +45,59 @@ class SerializeBehaviorTest extends \PHPUnit_Framework_TestCase
         $model = new News($data);
 
         $model->id = 2;
-        self::assertTrue($model->isAttributeChanged('id'));
+        $this->assertTrue($model->isAttributeChanged('id'));
 
-        self::assertEquals($model->getOldAttribute('id'), null);
-        self::assertTrue($model->save(false));
-        self::assertEquals($model->getOldAttribute('id'), $model->id);
+        $this->assertEquals($model->getOldAttribute('id'), null);
+        $this->assertTrue($model->save(false));
+        $this->assertEquals($model->getOldAttribute('id'), $model->id);
 
         $model->title = 'new title';
         $model->is_active = 1;
 
         $data = $this->getDefaultData();
 
-        self::assertTrue($model->isAttributeChanged('title'));
-        self::assertEquals($model->getOldAttribute('title'), $data['title']);
+        $this->assertTrue($model->isAttributeChanged('title'));
+        $this->assertEquals($model->getOldAttribute('title'), $data['title']);
 
-        self::assertFalse($model->isAttributeChanged('is_active', false));
-        self::assertTrue($model->isAttributeChanged('is_active', true));
+        $this->assertFalse($model->isAttributeChanged('is_active', false));
+        $this->assertTrue($model->isAttributeChanged('is_active', true));
 
-        self::assertEquals($model->getAttribute('not_fount_attribute'), null);
-        self::assertEquals($model->getOldAttribute('not_fount_attribute'), null);
-        self::assertFalse($model->isAttributeChanged('not_fount_attribute'));
+        $this->assertEquals($model->getAttribute('not_fount_attribute'), null);
+        $this->assertEquals($model->getOldAttribute('not_fount_attribute'), null);
+        $this->assertFalse($model->isAttributeChanged('not_fount_attribute'));
     }
 
     public function testGetDefaultValue()
     {
         $model = new News();
 
-        self::assertEquals($model->is_active, true);
-        self::assertEquals($model->getAttribute('is_active'), true);
+        $this->assertEquals($model->is_active, true);
+        $this->assertEquals($model->getAttribute('is_active'), true);
 
-        self::assertEquals($model->title, null);
-        self::assertEquals($model->defaultValue, 1);
-        self::assertEquals($model->meta['keywords'], null);
+        $this->assertEquals($model->title, null);
+        $this->assertEquals($model->defaultValue, 1);
+        $this->assertEquals($model->meta['keywords'], null);
 
-        self::assertEquals($model->defaultFunc, null);
-        self::assertTrue($model->save(false));
-        self::assertEquals($model->defaultFunc, $model->id);
+        $this->assertEquals($model->defaultFunc, null);
+        $this->assertTrue($model->save(false));
+        $this->assertEquals($model->defaultFunc, $model->id);
 
-        self::assertEquals($model->_data, null);
-        self::assertEquals($model->getAttribute('id'), $model->id);
+        $this->assertEquals($model->_data, null);
+        $this->assertEquals($model->getAttribute('id'), $model->id);
 
         $model->is_active = null;
         $model->save(false);
 
-        self::assertEquals($model->is_active, null);
-        self::assertEquals($model->_data, '{"is_active":null}');
+        $this->assertEquals($model->is_active, null);
+        $this->assertEquals($model->_data, '{"is_active":null}');
     }
 
     public function testIsset()
     {
         $model = new News();
 
-        self::assertTrue(isset($model->defaultValue));
+        $this->assertTrue(isset($model->defaultValue));
         unset($model->defaultValue);
-        self::assertFalse(isset($model->defaultValue));
+        $this->assertFalse(isset($model->defaultValue));
     }
 }
