@@ -1,6 +1,6 @@
 <?php
 
-namespace lav45\behaviors;
+namespace lav45\behaviors\traits;
 
 /**
  * Class ChangeAttributesTrait

@@ -5,6 +5,8 @@ namespace lav45\behaviors;
 use yii\db\ActiveRecord;
 use lav45\behaviors\contracts\AttributeChangeInterface;
 use lav45\behaviors\contracts\OldAttributeInterface;
+use lav45\behaviors\traits\ChangeAttributesTrait;
+use lav45\behaviors\traits\SerializeTrait;
 
 /**
  * Class SerializeProxyBehavior
