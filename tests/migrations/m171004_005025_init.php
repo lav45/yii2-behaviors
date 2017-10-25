@@ -22,6 +22,7 @@ class m171004_005025_init extends Migration
 
         $this->createTable('news', [
             'id' => $this->primaryKey(),
+            'title' => $this->string(),
             '_data' => $this->text(),
             '_tags' => $this->text(),
             '_options' => $this->text(),

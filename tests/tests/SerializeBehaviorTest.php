@@ -9,7 +9,7 @@ class SerializeBehaviorTest extends \PHPUnit_Framework_TestCase
     protected function getDefaultData()
     {
         return [
-            'title' => 'title',
+            'description' => 'description',
             'meta' => [
                 'title' => 'meta-title',
                 'description' => 'meta-description',
@@ -33,7 +33,7 @@ class SerializeBehaviorTest extends \PHPUnit_Framework_TestCase
         /** @var News $model */
         $model = News::findOne($model->id);
 
-        $this->assertEquals($model->title, $data['title']);
+        $this->assertEquals($model->description, $data['description']);
         $this->assertEquals($model->meta, $data['meta']);
         $this->assertEquals($model->is_active, $data['is_active']);
         $this->assertEquals($model->_data, json_encode($data, 320));
@@ -44,20 +44,21 @@ class SerializeBehaviorTest extends \PHPUnit_Framework_TestCase
         $data = $this->getDefaultData();
         $model = new News($data);
 
-        $model->id = 2;
-        $this->assertTrue($model->isAttributeChanged('id'));
+        $new_title = 'set title';
+        $model->title = $new_title;
+        $this->assertTrue($model->isAttributeChanged('title'));
 
-        $this->assertEquals($model->getOldAttribute('id'), null);
+        $this->assertEquals($model->getOldAttribute('title'), null);
         $this->assertTrue($model->save(false));
-        $this->assertEquals($model->getOldAttribute('id'), $model->id);
+        $this->assertEquals($model->getOldAttribute('title'), $new_title);
 
-        $model->title = 'new title';
+        $model->description = 'new description';
         $model->is_active = 1;
 
         $data = $this->getDefaultData();
 
-        $this->assertTrue($model->isAttributeChanged('title'));
-        $this->assertEquals($model->getOldAttribute('title'), $data['title']);
+        $this->assertTrue($model->isAttributeChanged('description'));
+        $this->assertEquals($model->getOldAttribute('description'), $data['description']);
 
         $this->assertFalse($model->isAttributeChanged('is_active', false));
         $this->assertTrue($model->isAttributeChanged('is_active', true));
@@ -74,7 +75,7 @@ class SerializeBehaviorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($model->is_active, true);
         $this->assertEquals($model->getAttribute('is_active'), true);
 
-        $this->assertEquals($model->title, null);
+        $this->assertEquals($model->description, null);
         $this->assertEquals($model->defaultValue, 1);
         $this->assertEquals($model->meta['keywords'], null);
 

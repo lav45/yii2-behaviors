@@ -2,7 +2,11 @@
 
 namespace lav45\behaviors\contracts;
 
-interface OldAttributeInterface extends AttributeInterface
+interface OldAttributeInterface
 {
+    /**
+     * @param string $name
+     * @return mixed
+     */
     public function getOldAttribute($name);
 }

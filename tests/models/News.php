@@ -10,17 +10,19 @@ use lav45\behaviors\VirtualAttributesTrait;
  * @package lav45\behaviors\tests\models
  *
  * @property integer $id
+ * @property string $title
  * @property string $_data
  * @property string $_tags
  * @property string $_options
  *
  * Virtual attributes
  * ---------------------------
- * @property string $title
+ * @property string $description
  * @property array $meta
  * @property bool $is_active
  * @property int $defaultValue
  * @property int $defaultFunc
+ *
  * @property array $tags
  * @property array $options
  */
@@ -35,7 +37,7 @@ class News extends ActiveRecord
                 'class' => 'lav45\behaviors\SerializeBehavior',
                 'storageAttribute' => '_data',
                 'attributes' => [
-                    'title',
+                    'description',
                     'meta' => [
                         'keywords' => null,
                         'description' => null,

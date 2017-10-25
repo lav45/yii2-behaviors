@@ -13,6 +13,25 @@ use lav45\behaviors\contracts\AttributeInterface;
 trait VirtualAttributesTrait
 {
     /**
+     * @param string $name
+     * @param string $type the class/interface
+     * @return \yii\base\Behavior|AttributeInterface|boolean
+     */
+    public function hasVirtualAttribute($name, $type = null)
+    {
+        foreach ($this->getBehaviors() as $behavior) {
+            if (
+                ($type === null || $behavior instanceof $type) &&
+                $behavior instanceof AttributeInterface &&
+                $behavior->hasAttribute($name)
+            ) {
+                return $behavior;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Returns the named attribute value.
      * If this record is the result of a query and the attribute is not loaded,
      * `null` will be returned.
@@ -26,13 +45,8 @@ trait VirtualAttributesTrait
             return parent::getAttribute($name);
         }
 
-        foreach ($this->getBehaviors() as $behavior) {
-            if (
-                $behavior instanceof AttributeInterface &&
-                $behavior->hasAttribute($name)
-            ) {
-                return $behavior->getAttribute($name);
-            }
+        if ($behavior = $this->hasVirtualAttribute($name)) {
+            return $behavior->getAttribute($name);
         }
 
         return null;
@@ -53,13 +67,9 @@ trait VirtualAttributesTrait
             return parent::getOldAttribute($name);
         }
 
-        foreach ($this->getBehaviors() as $behavior) {
-            if (
-                $behavior instanceof OldAttributeInterface &&
-                $behavior->hasAttribute($name)
-            ) {
-                return $behavior->getOldAttribute($name);
-            }
+        /** @var OldAttributeInterface $behavior */
+        if ($behavior = $this->hasVirtualAttribute($name, OldAttributeInterface::class)) {
+            return $behavior->getOldAttribute($name);
         }
 
         return null;
@@ -78,13 +88,9 @@ trait VirtualAttributesTrait
             return true;
         }
 
-        foreach ($this->getBehaviors() as $behavior) {
-            if (
-                $behavior instanceof AttributeChangeInterface &&
-                $behavior->hasAttribute($name)
-            ) {
-                return $behavior->isAttributeChanged($name, $identical);
-            }
+        /** @var AttributeChangeInterface $behavior */
+        if ($behavior = $this->hasVirtualAttribute($name, AttributeChangeInterface::class)) {
+            return $behavior->isAttributeChanged($name, $identical);
         }
 
         return false;

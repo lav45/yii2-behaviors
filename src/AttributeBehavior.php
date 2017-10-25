@@ -3,12 +3,13 @@
 namespace lav45\behaviors;
 
 use yii\base\Behavior;
+use lav45\behaviors\contracts\AttributeInterface;
 
 /**
  * Class AttributeBehavior
  * @package lav45\behaviors
  */
-abstract class AttributeBehavior extends Behavior
+abstract class AttributeBehavior extends Behavior implements AttributeInterface
 {
     /**
      * @var array flip target attributes
