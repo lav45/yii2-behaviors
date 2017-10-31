@@ -106,12 +106,12 @@ class ReplicationBehavior extends Behavior
      */
     protected function getRelationModel()
     {
-        if ($model = $this->getRelation()) {
-            return $model;
+        if (($model = $this->getRelation()) === null) {
+            $relationClass = $this->owner->getRelation($this->relation)->modelClass;
+            $model = new $relationClass;
+            $this->owner->populateRelation($this->relation, $model);
         }
-
-        $relationClass = $this->owner->getRelation($this->relation)->modelClass;
-        return new $relationClass;
+        return $model;
     }
 
     /**

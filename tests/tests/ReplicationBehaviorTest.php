@@ -16,9 +16,14 @@ class ReplicationBehaviorTest extends \PHPUnit_Framework_TestCase
         $model->detachBehaviors();
         $this->assertTrue($model->save(false)); // autoincrement id = 1
 
+        $this->assertNull($model->pageReplication);
+
         $model = new Page();
         $model->text = 'text';
         $this->assertTrue($model->save(false)); // autoincrement id = 2
+
+        $this->assertTrue($model->pageReplication instanceof PageReplication);
+        $this->assertFalse($model->pageReplication->getIsNewRecord());
 
         $replicationModel = PageReplication::findOne($model->id);
         $this->assertNotNull($replicationModel);
