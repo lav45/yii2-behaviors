@@ -30,9 +30,7 @@ in ```require``` section in `composer.json` file.
 
 - [SerializeBehavior](docs/SerializeBehavior.md)
 - [SerializeProxyBehavior](docs/SerializeProxyBehavior.md)
-- [ReplicationBehavior](docs/ReplicationBehavior.md)
-- PullBehavior
-- PushBehavior
+- [PushBehavior](docs/PushBehavior.md)
 - CorrectDateBehavior
 - SearchIndexBehavior
 

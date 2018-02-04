@@ -27,7 +27,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "4.* | 5.*",
-        "phpunit/dbunit": "*"
+        "phpunit/dbunit": "*",
+        "ext-sqlite3": "*"
     },
     "autoload": {
         "psr-4": {
