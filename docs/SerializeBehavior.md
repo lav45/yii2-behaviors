@@ -24,43 +24,4 @@ print_r($model->_data); // {"is_active": 1}
 
 ## Configuration
 
-```php
-use yii\db\ActiveRecord;
-use lav45\behaviors\VirtualAttributesTrait;
-
-/**
- * @property string $_data
- *
- * // Virtual attributes
- * ---------------------------
- * @property string $title
- * @property array $meta
- * @property bool $is_active
- */
-class News extends ActiveRecord
-{
-    /**
-     * This trait provides support for virtual methods `getAttribute()`, `getOldAttribute()`, `isAttributeChanged()`
-     * that implement Behaviors
-     */
-    use VirtualAttributesTrait;
-
-    public function behaviors()
-    {
-        return [
-            'serialize' => [
-                'class' => 'lav45\behaviors\SerializeBehavior',
-                'storageAttribute' => '_data', // Data storage attribute 
-                'attributes' => [
-                    'title',
-                    'meta' => [
-                        'keywords' => null,
-                        'description' => null,
-                    ],
-                    'is_active' => true,
-                ]
-            ]
-        ];
-    }
-}
-```
+- [News](/tests/models/News.php)

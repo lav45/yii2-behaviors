@@ -23,38 +23,4 @@ echo $model->_options; // {"key1":"value1","key2":"value2","key3":"value3"}
 
 ## Configuration
 
-```php
-use yii\db\ActiveRecord;
-use lav45\behaviors\VirtualAttributesTrait;
-
-/**
- * @property string $_tags
- * @property string $_options
- *
- * // Virtual attributes
- * ---------------------------
- * @property array $tags
- * @property array $options
- */
-class News extends ActiveRecord
-{
-    /**
-     * This trait provides support for virtual methods `getAttribute()`, `getOldAttribute()`, `isAttributeChanged()`
-     * that implement Behaviors
-     */
-    use VirtualAttributesTrait;
-
-    public function behaviors()
-    {
-        return [
-            'serializeProxy' => [
-                'class' => 'lav45\behaviors\SerializeProxyBehavior',
-                'attributes' => [
-                    'tags' => '_tags',
-                    'options' => '_options',
-                ]
-            ]
-        ];
-    }
-}
-```
+- [News](/tests/models/News.php)

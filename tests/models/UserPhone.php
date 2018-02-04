@@ -15,7 +15,6 @@ use yii\helpers\ArrayHelper;
  * @property int $phone
  *
  * @property ApiUser $apiUser
- * @property UserPhone[] $allPhones
  */
 class UserPhone extends ActiveRecord
 {
@@ -47,8 +46,9 @@ class UserPhone extends ActiveRecord
 
     public function getApiPhones($excludingSelf = false)
     {
-        $query = $this->getAllPhones()
+        $query = self::find()
             ->select(['id', 'phone', 'type'])
+            ->where(['user_id' => $this->user_id])
             ->asArray();
 
         if ($excludingSelf) {
@@ -74,10 +74,5 @@ class UserPhone extends ActiveRecord
     public function getApiUser()
     {
         return $this->hasOne(ApiUser::class, ['id' => 'user_id']);
-    }
-
-    public function getAllPhones()
-    {
-        return $this->hasMany(self::class, ['user_id' => 'user_id']);
     }
 }
