@@ -4,6 +4,7 @@ namespace lav45\behaviors\tests\models;
 
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
+use lav45\behaviors\PushBehavior;
 
 /**
  * Class UserPhone
@@ -15,14 +16,28 @@ use yii\helpers\ArrayHelper;
  * @property int $phone
  *
  * @property ApiUser $apiUser
+ * @property User $user
  */
 class UserPhone extends ActiveRecord
 {
+    /**
+     * @return array
+     */
+    public function transactions()
+    {
+        return [
+            ActiveRecord::SCENARIO_DEFAULT => ActiveRecord::OP_ALL,
+        ];
+    }
+
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
             [
-                'class' => 'lav45\behaviors\PushBehavior',
+                'class' => PushBehavior::class,
                 'relation' => 'apiUser',
                 'deleteRelation' => [$this, 'deleteRelation'],
                 'attributes' => [
@@ -44,6 +59,10 @@ class UserPhone extends ActiveRecord
         $model->save(false);
     }
 
+    /**
+     * @param bool $excludingSelf
+     * @return string
+     */
     public function getApiPhones($excludingSelf = false)
     {
         $query = self::find()
@@ -64,15 +83,19 @@ class UserPhone extends ActiveRecord
         return json_encode($phones);
     }
 
-    public function transactions()
-    {
-        return [
-            ActiveRecord::SCENARIO_DEFAULT => ActiveRecord::OP_ALL,
-        ];
-    }
-
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getApiUser()
     {
         return $this->hasOne(ApiUser::class, ['id' => 'user_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function User()
+    {
+        return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 }

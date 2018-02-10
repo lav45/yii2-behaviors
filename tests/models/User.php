@@ -3,6 +3,8 @@
 namespace lav45\behaviors\tests\models;
 
 use yii\db\ActiveRecord;
+use yii\behaviors\TimestampBehavior;
+use lav45\behaviors\PushBehavior;
 
 /**
  * Class User
@@ -15,22 +17,39 @@ use yii\db\ActiveRecord;
  * @property int $created_at
  * @property int $updated_at
  * @property int $last_login
+ * @property int $company_id
  *
  * @property ApiUser $apiUser
+ * @property Company $company
+ * @property UserProfile $profile
+ * @property UserPhone $phones
  */
 class User extends ActiveRecord
 {
+    /**
+     * @return array
+     */
+    public function transactions()
+    {
+        return [
+            ActiveRecord::SCENARIO_DEFAULT => ActiveRecord::OP_ALL,
+        ];
+    }
+
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
             [
-                'class' => 'yii\behaviors\TimestampBehavior',
+                'class' => TimestampBehavior::class,
             ],
             [
-                'class' => 'lav45\behaviors\PushBehavior',
+                'class' => PushBehavior::class,
                 'relation' => 'apiUser',
                 'attributes' => [
-                    'id' => 'id',
+                    'id',
 
                     'login' => 'user_login',
 
@@ -51,28 +70,27 @@ class User extends ActiveRecord
                         }
                     ],
 
-                    'first_name' => [
+                    [
+                        'watch' => ['first_name', 'last_name'],
                         'field' => 'fio',
                         'value' => 'fio', // $this->getFio()
                     ],
-                    'last_name' => [
-                        'field' => 'fio',
-                        'value' => function() {
-                            return $this->getFio();
-                        },
-                    ],
+
+                    'company_id' => 'company_id',
+
+                    [
+                        'watch' => 'company_id', // if changed attribute `company_id`
+                        'value' => 'company.name', // then get value from the $this->company->name
+                        'field' => 'company_name', // and set this value in to the relation attribute `company_name`
+                    ]
                 ]
             ]
         ];
     }
 
-    public function transactions()
-    {
-        return [
-            ActiveRecord::SCENARIO_DEFAULT => ActiveRecord::OP_ALL,
-        ];
-    }
-
+    /**
+     * @return string
+     */
     public function getFio()
     {
         if (empty($this->last_name)) {
@@ -81,6 +99,9 @@ class User extends ActiveRecord
         return $this->first_name . ' ' . $this->last_name;
     }
 
+    /**
+     * @return array
+     */
     public function getData()
     {
         return [
@@ -91,8 +112,35 @@ class User extends ActiveRecord
         ];
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getApiUser()
     {
         return $this->hasOne(ApiUser::class, ['id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompany()
+    {
+        return $this->hasOne(Company::class, ['id' => 'company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getProfile()
+    {
+        return $this->hasOne(UserProfile::class, ['user_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPhones()
+    {
+        return $this->hasMany(UserPhone::class, ['user_id' => 'id']);
     }
 }

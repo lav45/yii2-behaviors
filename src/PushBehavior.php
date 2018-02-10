@@ -16,7 +16,7 @@ use yii\helpers\ArrayHelper;
 class PushBehavior extends Behavior
 {
     /**
-     * @var string
+     * @var string target relation name
      */
     public $relation;
     /**
@@ -28,11 +28,17 @@ class PushBehavior extends Behavior
      *      // or
      *      'status' => [
      *          'field' => 'statusName',
-     *          'value' => 'array.key'
+     *          'value' => 'array.key',
      *          // 'value' => ['array', 'key'],
      *          // 'value' => function($owner) {
      *          //     return $owner->array['key'];
-     *          // }
+     *          // },
+     *      ],
+     *      [
+     *          'watch' => 'status',
+     *          // 'watch' => ['status', 'username'],
+     *          'field' => 'statusName',
+     *          'value' => 'array.key',
      *      ],
      *  ]
      */
@@ -49,32 +55,54 @@ class PushBehavior extends Behavior
      * }
      */
     public $deleteRelation = true;
+    /**
+     * @var bool local state of the variable `$enable`
+     */
+    private $isEnable = true;
+
+
+    public function init()
+    {
+        $this->initAttributes();
+    }
+
+    protected function initAttributes()
+    {
+        $result = [];
+        foreach ($this->attributes as $key => $value) {
+            if (is_int($key) && is_string($value)) {
+                $key = $value;
+            }
+            $result[] = [
+                'watch' => is_string($key) ? $key : $value['watch'],
+                'field' => is_string($value) ? $value : $value['field'],
+                'value' => is_string($value) ? $key : $value['value'],
+            ];
+        }
+        $this->attributes = $result;
+    }
 
     /**
      * @inheritdoc
      */
     public function events()
     {
-        if ($this->isEnable() === false) {
-            return [];
-        }
-
         return [
+            ActiveRecord::EVENT_BEFORE_INSERT => 'beforeSave',
+            ActiveRecord::EVENT_BEFORE_UPDATE => 'beforeSave',
             ActiveRecord::EVENT_AFTER_INSERT => 'afterInsert',
             ActiveRecord::EVENT_AFTER_UPDATE => 'afterUpdate',
             ActiveRecord::EVENT_BEFORE_DELETE => 'beforeDelete'
         ];
     }
 
-    /**
-     * @return bool
-     */
-    private function isEnable()
+    public function beforeSave()
     {
-        if (!is_bool($this->enable)) {
-            $this->enable = (bool)call_user_func($this->enable);
+        if (is_bool($this->enable)) {
+            $this->isEnable = $this->enable;
+        } else {
+            $this->isEnable = (bool)call_user_func($this->enable);
         }
-        return $this->enable;
     }
 
     /**
@@ -82,34 +110,15 @@ class PushBehavior extends Behavior
      */
     public final function afterInsert()
     {
-        if (empty($models = $this->getRelation())) {
-            $class = $this->owner->getRelation($this->relation)->modelClass;
-            $models = [new $class];
+        if ($this->isEnable === false) {
+            return;
         }
-        if (is_array($models) === false) {
-            $models = [$models];
-        }
-        foreach ($models as $model) {
+        foreach ($this->findOrCreateRelations() as $model) {
             $this->updateItem($model, $this->attributes);
-
             if ($model->getIsNewRecord()) {
-                if (!$model->beforeSave(true)) {
-                    continue;
-                }
-
                 $this->owner->link($this->relation, $model);
-
-                $changedAttributes = [];
-                foreach ($model->attributes as $key => $value) {
-                    if (null !== $value) {
-                        $changedAttributes[$key] = null;
-                    }
-                }
-
-                $model->afterSave(true, $changedAttributes);
             } else {
                 $model->save(false);
-                $this->owner->populateRelation($this->relation, $models);
             }
         }
     }
@@ -120,6 +129,9 @@ class PushBehavior extends Behavior
      */
     public final function afterUpdate(AfterSaveEvent $event)
     {
+        if ($this->isEnable === false) {
+            return;
+        }
         if ($changedAttributes = $this->getChangedAttributes($event->changedAttributes)) {
             foreach ($this->getItemsIterator() as $item) {
                 $this->updateItem($item, $changedAttributes);
@@ -137,7 +149,6 @@ class PushBehavior extends Behavior
         if ($this->deleteRelation === false) {
             return;
         }
-
         foreach ($this->getItemsIterator() as $item) {
             if ($this->deleteRelation === true) {
                 $item->delete();
@@ -145,6 +156,22 @@ class PushBehavior extends Behavior
                 call_user_func($this->deleteRelation, $item);
             }
         }
+    }
+
+    /**
+     * @return ActiveRecord[]
+     */
+    private function findOrCreateRelations()
+    {
+        $models = $this->getRelation();
+        if (empty($models)) {
+            $class = $this->owner->getRelation($this->relation)->modelClass;
+            return [new $class];
+        }
+        if (!is_array($models)) {
+            return [$models];
+        }
+        return $models;
     }
 
     /**
@@ -176,9 +203,9 @@ class PushBehavior extends Behavior
      */
     protected function updateItem($model, $attributes)
     {
-        foreach ($attributes as $attribute => $target) {
-            $field = is_array($target) ? $target['field'] : $target;
-            $value = is_array($target) ? $target['value'] : $attribute;
+        foreach ($attributes as $attribute) {
+            $field = $attribute['field'];
+            $value = $attribute['value'];
 
             $model->{$field} = ArrayHelper::getValue($this->owner, $value);
         }
@@ -190,7 +217,23 @@ class PushBehavior extends Behavior
      */
     private function getChangedAttributes($changedAttributes)
     {
-        return array_intersect_key($this->attributes, $changedAttributes);
+        $result = [];
+        foreach ($this->attributes as $attribute) {
+            $watch = $attribute['watch'];
+            if (is_array($watch)) {
+                foreach ($watch as $item) {
+                    if (isset($changedAttributes[$item]) || array_key_exists($item, $changedAttributes)) {
+                        $result[] = $attribute;
+                        break;
+                    }
+                }
+            } else {
+                if (isset($changedAttributes[$watch]) || array_key_exists($watch, $changedAttributes)) {
+                    $result[] = $attribute;
+                }
+            }
+        }
+        return $result;
     }
 
     /**

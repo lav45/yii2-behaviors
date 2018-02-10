@@ -3,6 +3,8 @@
 namespace lav45\behaviors\tests\models;
 
 use yii\db\ActiveRecord;
+use yii\behaviors\TimestampBehavior;
+use lav45\behaviors\ReplicationBehavior;
 
 /**
  * Class Page
@@ -28,10 +30,10 @@ class Page extends ActiveRecord
     {
         return [
             [
-                'class' => 'yii\behaviors\TimestampBehavior',
+                'class' => TimestampBehavior::class,
             ],
             [
-                'class' => 'lav45\behaviors\ReplicationBehavior',
+                'class' => ReplicationBehavior::class,
                 'relation' => 'pageReplication',
                 'attributes' => [
                     'id' => 'id',
@@ -53,7 +55,7 @@ class Page extends ActiveRecord
 
     public function getPageReplication()
     {
-        return $this->hasOne(PageReplication::className(), ['id' => 'id']);
+        return $this->hasOne(PageReplication::class, ['id' => 'id']);
     }
 
     public function getData()

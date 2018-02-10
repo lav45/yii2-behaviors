@@ -6,15 +6,16 @@ use yii\db\ActiveRecord;
 use lav45\behaviors\PushBehavior;
 
 /**
- * Class UserProfile
+ * Class Company
  * @package lav45\behaviors\tests\models
  *
- * @property int $user_id
- * @property int $birthday
+ * @property int $id
+ * @property string $name
  *
- * @property User $user
+ * @property ApiUser[] $apiUsers
+ * @property User[] $users
  */
-class UserProfile extends ActiveRecord
+class Company extends ActiveRecord
 {
     /**
      * @return array
@@ -34,10 +35,13 @@ class UserProfile extends ActiveRecord
         return [
             [
                 'class' => PushBehavior::class,
-                'relation' => 'apiUser',
+                'relation' => 'apiUsers',
                 'deleteRelation' => [$this, 'deleteRelation'],
+                'enable' => function() {
+                    return $this->getIsNewRecord() === false;
+                },
                 'attributes' => [
-                    'birthday' => 'birthday'
+                    'name' => 'company_name',
                 ]
             ]
         ];
@@ -48,23 +52,25 @@ class UserProfile extends ActiveRecord
      */
     public function deleteRelation(ApiUser $model)
     {
-        $model->birthday = null;
+        $model->company_id = null;
+        $model->company_name = null;
         $model->save(false);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getApiUser()
+    public function getApiUsers()
     {
-        return $this->hasOne(ApiUser::class, ['id' => 'user_id']);
+        return $this->hasMany(ApiUser::class, ['id' => 'id'])
+            ->via('users');
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function User()
+    public function getUsers()
     {
-        return $this->hasOne(User::class, ['id' => 'user_id']);
+        return $this->hasMany(User::class, ['company_id' => 'id']);
     }
 }

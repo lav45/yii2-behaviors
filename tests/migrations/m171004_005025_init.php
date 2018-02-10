@@ -40,18 +40,27 @@ class m171004_005025_init extends Migration
             'created_at' => $this->integer()->notNull(),
             'updated_at' => $this->integer()->notNull(),
             'last_login' => $this->integer(),
+            'company_id' => $this->integer(),
         ]);
 
+        // hasOne
         $this->createTable('user_profile', [
             'user_id' => $this->primaryKey(),
             'birthday' => $this->integer(),
         ]);
 
+        // hasMany
         $this->createTable('user_phone', [
             'id' => $this->primaryKey(),
             'user_id' => $this->integer()->notNull(),
             'type' => $this->string()->notNull(),
             'phone' => $this->string()->notNull(),
+        ]);
+
+        // push to many relations
+        $this->createTable('company', [
+            'id' => $this->primaryKey(),
+            'name' => $this->string()->notNull(),
         ]);
 
         $this->createTable('api_user', [
@@ -63,6 +72,8 @@ class m171004_005025_init extends Migration
             'lastLogin' => $this->integer(),
             'birthday' => $this->integer(),
             'phones' => $this->string()->defaultValue('[]'),
+            'company_id' => $this->integer(),
+            'company_name' => $this->string(),
         ]);
     }
 }

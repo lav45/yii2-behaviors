@@ -4,6 +4,8 @@ namespace lav45\behaviors\tests\models;
 
 use yii\db\ActiveRecord;
 use lav45\behaviors\VirtualAttributesTrait;
+use lav45\behaviors\SerializeProxyBehavior;
+use lav45\behaviors\SerializeBehavior;
 
 /**
  * Class News
@@ -34,7 +36,7 @@ class News extends ActiveRecord
     {
         return [
             'serialize' => [
-                'class' => 'lav45\behaviors\SerializeBehavior',
+                'class' => SerializeBehavior::class,
                 'storageAttribute' => '_data',
                 'attributes' => [
                     'description',
@@ -50,7 +52,7 @@ class News extends ActiveRecord
                 ]
             ],
             'serializeProxy' => [
-                'class' => 'lav45\behaviors\SerializeProxyBehavior',
+                'class' => SerializeProxyBehavior::class,
                 'attributes' => [
                     'tags' => '_tags',
                     'options' => '_options',
