@@ -37,9 +37,7 @@ class Company extends ActiveRecord
                 'class' => PushBehavior::class,
                 'relation' => 'apiUsers',
                 'deleteRelation' => [$this, 'deleteRelation'],
-                'enable' => function() {
-                    return $this->getIsNewRecord() === false;
-                },
+                'createRelation' => false,
                 'attributes' => [
                     'name' => 'company_name',
                 ]

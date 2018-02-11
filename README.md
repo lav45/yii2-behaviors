@@ -20,7 +20,7 @@ You can set the console
 or add
 
 ```
-"lav45/yii2-behaviors": "0.3.*"
+"lav45/yii2-behaviors": "0.4.*"
 ```
 
 in ```require``` section in `composer.json` file.

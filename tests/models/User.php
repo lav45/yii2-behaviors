@@ -60,7 +60,7 @@ class User extends ActiveRecord
 
                     'created_at' => [
                         'field' => 'createdAt',
-                        'value' => ['data', 'updated'],
+                        'value' => ['data', 'created'],
                     ],
 
                     'last_login' => [

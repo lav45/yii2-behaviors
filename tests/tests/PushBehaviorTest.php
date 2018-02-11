@@ -31,7 +31,6 @@ class PushBehaviorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($user->last_login, $apiUser->lastLogin);
 
         // Update
-        $user->refresh();
         $user->last_name = 'Destroyer';
         $user->last_login = time();
         $this->assertTrue($user->save(false));
