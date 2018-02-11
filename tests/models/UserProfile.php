@@ -36,6 +36,7 @@ class UserProfile extends ActiveRecord
                 'class' => PushBehavior::class,
                 'relation' => 'apiUser',
                 'deleteRelation' => [$this, 'deleteRelation'],
+                'createRelation' => false,
                 'attributes' => [
                     'birthday' => 'birthday'
                 ]

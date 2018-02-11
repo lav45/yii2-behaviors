@@ -4,11 +4,41 @@ namespace lav45\behaviors;
 
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
+use yii\db\ActiveRecordInterface;
 use yii\db\AfterSaveEvent;
 use yii\helpers\ArrayHelper;
 
 /**
  * Class PushBehavior
+ *
+ * ================ Example usage ================
+ * public function behaviors()
+ * {
+ *      return [
+ *          [
+ *              'class' => PushBehavior::class,
+ *              'relation' => 'apiUser',
+ *              'attributes' => [
+ *                  'id',
+ *                  'login' => 'user_login',
+ *                  'updated_at' => [
+ *                      'field' => 'updatedAt',
+ *                      'value' => 'data.updated',
+ *                      // 'value' => ['data', 'updated'],
+ *                      // 'value' => function($owner) {
+ *                      //     return $owner->data['updated'];
+ *                      // },
+ *                  ],
+ *                  [
+ *                      'watch' => ['first_name', 'last_name'],
+ *                      // 'watch' => 'full_name',
+ *                      'field' => 'fio',
+ *                      'value' => 'fio', // $this->getFio()
+ *                  ],
+ *              ]
+ *          ]
+ *      ];
+ * }
  *
  * @package lav45\behaviors
  * @property ActiveRecord $owner
@@ -23,6 +53,10 @@ class PushBehavior extends Behavior
      * @var array
      * [
      *      // Observe the change in the `status` attribute
+     *      // Writes the "value" in field `status` the relation model
+     *      'status',
+     *
+     *      // Observe the change in the `status` attribute
      *      // Writes the "value" in field `statusName` the relation model
      *      'status' => 'statusName',
      *      // or
@@ -34,19 +68,18 @@ class PushBehavior extends Behavior
      *          //     return $owner->array['key'];
      *          // },
      *      ],
+     *
+     *      // Observe the change in the `status` attribute
      *      [
-     *          'watch' => 'status',
-     *          // 'watch' => ['status', 'username'],
-     *          'field' => 'statusName',
-     *          'value' => 'array.key',
+     *          'watch' => 'status', // if changed attribute `status`
+     *          // 'watch' => ['status', 'username'], // Watch for changes in a few fields
+     *
+     *          'value' => 'array.key', // then get value from the $this->array['key']
+     *          'field' => 'statusName', // and set this value in to the relation attribute `statusName`
      *      ],
      *  ]
      */
     public $attributes = [];
-    /**
-     * @var bool|\Closure
-     */
-    public $enable = true;
     /**
      * @var bool|\Closure whether to delete related models
      *
@@ -56,9 +89,9 @@ class PushBehavior extends Behavior
      */
     public $deleteRelation = true;
     /**
-     * @var bool local state of the variable `$enable`
+     * @var bool
      */
-    private $isEnable = true;
+    public $createRelation = true;
 
 
     public function init()
@@ -88,21 +121,10 @@ class PushBehavior extends Behavior
     public function events()
     {
         return [
-            ActiveRecord::EVENT_BEFORE_INSERT => 'beforeSave',
-            ActiveRecord::EVENT_BEFORE_UPDATE => 'beforeSave',
             ActiveRecord::EVENT_AFTER_INSERT => 'afterInsert',
             ActiveRecord::EVENT_AFTER_UPDATE => 'afterUpdate',
             ActiveRecord::EVENT_BEFORE_DELETE => 'beforeDelete'
         ];
-    }
-
-    public function beforeSave()
-    {
-        if (is_bool($this->enable)) {
-            $this->isEnable = $this->enable;
-        } else {
-            $this->isEnable = (bool)call_user_func($this->enable);
-        }
     }
 
     /**
@@ -110,10 +132,10 @@ class PushBehavior extends Behavior
      */
     public final function afterInsert()
     {
-        if ($this->isEnable === false) {
-            return;
-        }
-        foreach ($this->findOrCreateRelations() as $model) {
+        foreach ($this->getItemsIterator() as $model) {
+            if ($model === null && $this->createRelation === true) {
+                $model = $this->createRelationModel();
+            }
             $this->updateItem($model, $this->attributes);
             if ($model->getIsNewRecord()) {
                 $this->owner->link($this->relation, $model);
@@ -129,9 +151,6 @@ class PushBehavior extends Behavior
      */
     public final function afterUpdate(AfterSaveEvent $event)
     {
-        if ($this->isEnable === false) {
-            return;
-        }
         if ($changedAttributes = $this->getChangedAttributes($event->changedAttributes)) {
             foreach ($this->getItemsIterator() as $item) {
                 $this->updateItem($item, $changedAttributes);
@@ -159,46 +178,32 @@ class PushBehavior extends Behavior
     }
 
     /**
-     * @return ActiveRecord[]
+     * @return ActiveRecordInterface
      */
-    private function findOrCreateRelations()
+    protected function createRelationModel()
     {
-        $models = $this->getRelation();
-        if (empty($models)) {
-            $class = $this->owner->getRelation($this->relation)->modelClass;
-            return [new $class];
-        }
-        if (!is_array($models)) {
-            return [$models];
-        }
-        return $models;
+        $class = $this->owner->getRelation($this->relation)->modelClass;
+        return new $class;
     }
 
     /**
-     * @return \Generator|ActiveRecord[]
+     * @return \Generator|ActiveRecordInterface[]
      */
     private function getItemsIterator()
     {
         $relation = $this->owner->getRelation($this->relation);
 
         if ($relation->multiple === true) {
-            if ($this->owner->isRelationPopulated($this->relation)) {
-                $items = $this->getRelation();
-            } else {
-                $items = $relation->each();
-            }
-            foreach ($items as $item) {
+            foreach ($relation->each() as $item) {
                 yield $item;
             }
         } else {
-            if ($item = $this->getRelation()) {
-                yield $item;
-            }
+            yield $relation->one();
         }
     }
 
     /**
-     * @param ActiveRecord $model
+     * @param ActiveRecordInterface $model
      * @param array $attributes
      */
     protected function updateItem($model, $attributes)
@@ -234,13 +239,5 @@ class PushBehavior extends Behavior
             }
         }
         return $result;
-    }
-
-    /**
-     * @return null|ActiveRecord|ActiveRecord[]
-     */
-    private function getRelation()
-    {
-        return $this->owner->{$this->relation};
     }
 }
