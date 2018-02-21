@@ -5,12 +5,12 @@ namespace lav45\behaviors\traits;
 trait SerializeTrait
 {
     /**
-     * @var \Closure|array|string
+     * @var \Closure|array|string method that will be used to encode data
      * @see Json::encode()
      */
     public $encode = 'yii\helpers\Json::encode';
     /**
-     * @var \Closure|array|string
+     * @var \Closure|array|string method that will be used to decode data
      * @see Json::decode()
      */
     public $decode = 'yii\helpers\Json::decode';

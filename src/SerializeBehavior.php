@@ -22,7 +22,7 @@ class SerializeBehavior extends AttributeBehavior implements AttributeChangeInte
     use ChangeAttributesTrait;
 
     /**
-     * @var string
+     * @var string field in the database in which all data will be stored
      */
     public $storageAttribute;
 
