@@ -70,20 +70,25 @@ A list of virtual fields that will be stored in the `storageAttribute`
 
 ### encode
 
-* Type: `\Closure` | `array` | `string`
+* Type: `\Closure` | `array` | `string` | `bool`
 * Require: `false`
 * Default: `yii\helpers\Json::encode`
 * Example: 
 ```php
-'encode' => function(array $value) {
+// 'encode' => 'serialize',
+'encode' => function($value) {
     return serialize($value);
 },
 ```
 or
 ```php
-'encode' => function(array $value) {
-    return new \yii\db\JsonExpression($value, 'jsonb');
+'encode' => function($value) {
+    return new \yii\db\JsonExpression($value);
 },
+```
+or if you do not need to encode
+```php
+'encode' => false,
 ```
 
 Method that will be used to encode data
@@ -91,20 +96,19 @@ Method that will be used to encode data
 
 ### decode
 
-* Type: `\Closure` | `array` | `string`
+* Type: `\Closure` | `array` | `string` | `bool`
 * Require: `false`
 * Default: `yii\helpers\Json::decode`
 * Example:
 ```php
+// 'decode' => 'unserialize',
 'decode' => function($value) {
     return unserialize($value); 
 },
 ```
-or
+or if you do not need to decode, the database returns an array
 ```php
-'decode' => function($value) {
-    return $value; // If the database itself returns an array 
-},
+'decode' => false, 
 ```
 
 Method that will be used to decode data
