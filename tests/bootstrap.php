@@ -14,6 +14,11 @@ new \yii\console\Application([
             'class' => 'yii\db\Connection',
             'dsn' => 'sqlite::memory:',
         ],
+        'formatter' => [
+            'dateFormat' => 'dd.MM.yyyy',
+            'timeFormat' => 'HH:mm',
+            'datetimeFormat' => 'dd.MM.yyyy HH:mm',
+        ],
     ]
 ]);
 

@@ -24,6 +24,11 @@ class SerializeProxyBehavior extends AttributeBehavior implements AttributeChang
     /**
      * @inheritdoc
      */
+    public $attributes = [];
+
+    /**
+     * @inheritdoc
+     */
     public function events()
     {
         return [
@@ -49,14 +54,6 @@ class SerializeProxyBehavior extends AttributeBehavior implements AttributeChang
                 $this->owner[$storage] = $this->encode($this->data[$target]);
             }
         }
-    }
-
-    /**
-     * @param array $data
-     */
-    public function setAttributes(array $data)
-    {
-        $this->attributes = $data;
     }
 
     /**
