@@ -7,8 +7,9 @@ use lav45\behaviors\tests\models\ApiUser;
 use lav45\behaviors\tests\models\UserPhone;
 use lav45\behaviors\tests\models\UserProfile;
 use lav45\behaviors\tests\models\Company;
+use PHPUnit\Framework\TestCase;
 
-class PushBehaviorTest extends \PHPUnit_Framework_TestCase
+class PushBehaviorTest extends TestCase
 {
     public function testCRUDTargetModel()
     {

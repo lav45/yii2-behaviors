@@ -3,8 +3,9 @@
 namespace lav45\behaviors\tests\tests;
 
 use lav45\behaviors\tests\models\News;
+use PHPUnit\Framework\TestCase;
 
-class SerializeProxyBehaviorTest extends \PHPUnit_Framework_TestCase
+class SerializeProxyBehaviorTest extends TestCase
 {
     protected function getDefaultData()
     {
