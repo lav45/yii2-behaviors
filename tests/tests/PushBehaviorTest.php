@@ -2,6 +2,7 @@
 
 namespace lav45\behaviors\tests\tests;
 
+use Yii;
 use lav45\behaviors\tests\models\User;
 use lav45\behaviors\tests\models\ApiUser;
 use lav45\behaviors\tests\models\UserPhone;
@@ -11,6 +12,17 @@ use PHPUnit\Framework\TestCase;
 
 class PushBehaviorTest extends TestCase
 {
+    public function tearDown()
+    {
+        // To ensure that during the test, the base does not increase in size
+        $command = Yii::$app->getDb()->createCommand();
+        $command->truncateTable(User::tableName())->execute();
+        $command->truncateTable(ApiUser::tableName())->execute();
+        $command->truncateTable(UserPhone::tableName())->execute();
+        $command->truncateTable(UserProfile::tableName())->execute();
+        $command->truncateTable(Company::tableName())->execute();
+    }
+
     public function testCRUDTargetModel()
     {
         // Create
@@ -19,7 +31,7 @@ class PushBehaviorTest extends TestCase
         $user->first_name = 'Buster';
 
         $this->assertTrue($user->save(false));
-        $this->assertTrue($user->apiUser instanceof ApiUser);
+        $this->assertInstanceOf(ApiUser::class, $user->apiUser);
         $this->assertFalse($user->apiUser->getIsNewRecord());
 
         $apiUser = $this->getApiUser($user->id);
@@ -135,13 +147,11 @@ class PushBehaviorTest extends TestCase
         $user_1->login = 'buster';
         $user_1->first_name = 'Buster';
         $user_1->save(false);
-        $user_1->refresh();
 
         $user_2 = new User();
         $user_2->login = 'lusya';
         $user_2->first_name = 'Lusya';
         $user_2->save(false);
-        $user_2->refresh();
 
         // Create company
         $company_1 = new Company();
@@ -158,7 +168,7 @@ class PushBehaviorTest extends TestCase
 
         // ========== Update ==========
         // Update relation model
-        $company_1->name = 'Harley-Davidson USA';
+        $company_1->name = 'Harley-Davidson';
         $company_1->save(false);
 
         // Check save data
@@ -171,9 +181,7 @@ class PushBehaviorTest extends TestCase
         $this->assertTrue($company_2->save(false));
 
         // Move users in to the new company
-        $user_1->refresh();
         $user_1->link('company', $company_2);
-        $user_2->refresh();
         $user_2->link('company', $company_2);
 
         // Check save data
@@ -187,7 +195,6 @@ class PushBehaviorTest extends TestCase
 
         // ========== Delete ==========
         // User leave the company
-        $user_1->refresh();
         $user_1->unlink('company', $company_2);
 
         $apiUser_1->refresh();

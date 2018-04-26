@@ -19,21 +19,31 @@ use yii\helpers\ArrayHelper;
  *              'class' => PushBehavior::class,
  *              'relation' => 'apiUser',
  *              'attributes' => [
- *                  'id',
- *                  'login' => 'user_login',
- *                  'updated_at' => [
- *                      'field' => 'updatedAt',
- *                      'value' => 'data.updated',
- *                      // 'value' => ['data', 'updated'],
- *                      // 'value' => function($owner) {
- *                      //     return $owner->data['updated'];
- *                      // },
+ *                  // Observe the change in the `status` attribute
+ *                  // Writes the "value" in field `status` the relation model
+ *                  'status',
+ *
+ *                  // Observe the change in the `status` attribute
+ *                  // Writes the "value" in field `statusName` the relation model
+ *                  'status' => 'statusName',
+ *
+ *                  // or
+ *                  'status' => [  // Watch for changed attribute `status`
+ *                      'field' => 'statusName', // and set this value in to the relation attribute `statusName`
+ *                      'value' => 'status_name', // then get value from the attribute `status_name`
  *                  ],
+ *
+ *                  // Observe the change in the `status` attribute
  *                  [
- *                      'watch' => ['first_name', 'last_name'],
- *                      // 'watch' => 'full_name',
- *                      'field' => 'fio',
- *                      'value' => 'fio', // $this->getFio()
+ *                      'watch' => 'status', // if changed attribute `status`
+ *                      // 'watch' => ['status', 'username'], // Watch for changes in a few fields
+ *
+ *                      'field' => 'statusName', // and set this value in to the relation attribute `statusName`
+ *                      'value' => 'array.key', // then get value from the $this->array['key']
+ *                      // 'value' => ['array', 'key'],
+ *                      // 'value' => function($owner) {
+ *                      //     return $owner->array['key'];
+ *                      // },
  *                  ],
  *              ]
  *          ]
@@ -52,32 +62,23 @@ class PushBehavior extends Behavior
     /**
      * @var array
      * [
-     *      // Observe the change in the `status` attribute
-     *      // Writes the "value" in field `status` the relation model
-     *      'status',
-     *
-     *      // Observe the change in the `status` attribute
-     *      // Writes the "value" in field `statusName` the relation model
-     *      'status' => 'statusName',
-     *      // or
-     *      'status' => [
-     *          'field' => 'statusName',
-     *          'value' => 'array.key',
-     *          // 'value' => ['array', 'key'],
-     *          // 'value' => function($owner) {
-     *          //     return $owner->array['key'];
-     *          // },
-     *      ],
-     *
-     *      // Observe the change in the `status` attribute
-     *      [
-     *          'watch' => 'status', // if changed attribute `status`
-     *          // 'watch' => ['status', 'username'], // Watch for changes in a few fields
-     *
-     *          'value' => 'array.key', // then get value from the $this->array['key']
-     *          'field' => 'statusName', // and set this value in to the relation attribute `statusName`
-     *      ],
-     *  ]
+     *     'id',
+     *     'login' => 'user_login',
+     *     'updated_at' => [
+     *         'field' => 'updatedAt',
+     *         'value' => 'updated_at',
+     *     ],
+     *     [
+     *         // 'watch' => 'status',
+     *         'watch' => ['status', 'username'],
+     *         'field' => 'statusName',
+     *         'value' => 'array.key',
+     *         // 'value' => ['array', 'key'],
+     *         // 'value' => function($owner) {
+     *         //     return $owner->array['key'];
+     *         // },
+     *     ],
+     * ]
      */
     public $attributes = [];
     /**
@@ -94,11 +95,17 @@ class PushBehavior extends Behavior
     public $createRelation = true;
 
 
+    /**
+     * Initializes the object.
+     */
     public function init()
     {
         $this->initAttributes();
     }
 
+    /**
+     * The method leads the value of the field 'attributes' to the general form
+     */
     protected function initAttributes()
     {
         $result = [];
@@ -130,7 +137,7 @@ class PushBehavior extends Behavior
     /**
      * Update or insert related model
      */
-    public final function afterInsert()
+    final public function afterInsert()
     {
         foreach ($this->getItemsIterator() as $model) {
             if ($model === null && $this->createRelation === true) {
@@ -149,7 +156,7 @@ class PushBehavior extends Behavior
      * Update fields in related model
      * @param AfterSaveEvent $event
      */
-    public final function afterUpdate(AfterSaveEvent $event)
+    final public function afterUpdate(AfterSaveEvent $event)
     {
         if ($changedAttributes = $this->getChangedAttributes($event->changedAttributes)) {
             foreach ($this->getItemsIterator() as $item) {
@@ -163,7 +170,7 @@ class PushBehavior extends Behavior
      * @throws \Exception
      * @throws \Throwable
      */
-    public final function beforeDelete()
+    final public function beforeDelete()
     {
         if ($this->deleteRelation === false) {
             return;
@@ -209,10 +216,7 @@ class PushBehavior extends Behavior
     protected function updateItem($model, $attributes)
     {
         foreach ($attributes as $attribute) {
-            $field = $attribute['field'];
-            $value = $attribute['value'];
-
-            $model->{$field} = ArrayHelper::getValue($this->owner, $value);
+            $model->{$attribute['field']} = ArrayHelper::getValue($this->owner, $attribute['value']);
         }
     }
 
