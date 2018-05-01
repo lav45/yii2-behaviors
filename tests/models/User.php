@@ -18,11 +18,18 @@ use lav45\behaviors\PushBehavior;
  * @property int $updated_at
  * @property int $last_login
  * @property int $company_id
+ * @property int $department_id
+ *
+ * @property int $userCountValue
+ * @property int $oldUserCountValue
+ * @property int $oldDepartmentId
  *
  * @property ApiUser $apiUser
  * @property Company $company
  * @property UserProfile $profile
  * @property UserPhone $phones
+ * @property Department $department
+ * @property Department $oldDepartment
  */
 class User extends ActiveRecord
 {
@@ -89,6 +96,32 @@ class User extends ActiveRecord
     }
 
     /**
+     * @return int
+     */
+    public function getOldDepartmentId()
+    {
+        return $this->getOldAttribute('department_id');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeSave($insert)
+    {
+        if ($this->isAttributeChanged('department_id')) {
+            if ($this->department_id) {
+                $this->department->user_count += 1;
+                $this->department->save(false);
+            }
+            if ($this->getOldDepartmentId()) {
+                $this->oldDepartment->user_count -= 1;
+                $this->oldDepartment->save(false);
+            }
+        }
+        return parent::beforeSave($insert);
+    }
+
+    /**
      * @return string
      */
     public function getFio()
@@ -142,5 +175,21 @@ class User extends ActiveRecord
     public function getPhones()
     {
         return $this->hasMany(UserPhone::class, ['user_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDepartment()
+    {
+        return $this->hasOne(Department::class, ['id' => 'department_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOldDepartment()
+    {
+        return $this->hasOne(Department::class, ['id' => 'oldDepartmentId']);
     }
 }
