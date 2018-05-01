@@ -38,7 +38,7 @@ use yii\helpers\ArrayHelper;
  *                      'watch' => 'status', // if changed attribute `status`
  *                      // 'watch' => ['status', 'username'], // Watch for changes in a few fields
  *
- *                      'field' => 'statusName', // and set this value in to the relation attribute `statusName`
+ *                      'field' => 'statusName', // and set value in this relation attribute `statusName`
  *                      'value' => 'array.key', // then get value from the $this->array['key']
  *                      // 'value' => ['array', 'key'],
  *                      // 'value' => function($owner) {
@@ -62,6 +62,37 @@ class PushBehavior extends Behavior
     /**
      * @var array
      * [
+     *     [
+     *         - watch: string|array => watch for changes in a few fields,
+     *         - field: string => set value in this relation attribute,
+     *         - value: string|array => get value from the attribute or path,
+     *     ],
+     * ]
+     */
+    private $attributes = [];
+    /**
+     * @var bool|\Closure whether to delete related models
+     * Can be passed to \Closure then the user will be able to decide how to unlink the link to the linked model
+     * function (ActiveRecord $model) {
+     *      // performed necessary actions related model
+     *      $model->delete();
+     * }
+     */
+    public $deleteRelation = true;
+    /**
+     * @var bool|\Closure whether to create related models
+     * Can be passed to \Closure, then the user can instantiate the associated model
+     * function () {
+     *      $model = new Group(); // ActiveRecord extension
+     *      return $model;
+     * }
+     */
+    public $createRelation = true;
+
+    /**
+     * The method converts the value of the attributes field to a common form
+     * @param array $attributes
+     * Example: [
      *     'id',
      *     'login' => 'user_login',
      *     'updated_at' => [
@@ -69,10 +100,11 @@ class PushBehavior extends Behavior
      *         'value' => 'updated_at',
      *     ],
      *     [
-     *         // 'watch' => 'status',
-     *         'watch' => ['status', 'username'],
+     *         'watch' => 'status',
+     *         // 'watch' => ['status', 'username'],
      *         'field' => 'statusName',
-     *         'value' => 'array.key',
+     *         'value' => 'attribute',
+     *         // 'value' => 'array.key',
      *         // 'value' => ['array', 'key'],
      *         // 'value' => function($owner) {
      *         //     return $owner->array['key'];
@@ -80,46 +112,19 @@ class PushBehavior extends Behavior
      *     ],
      * ]
      */
-    public $attributes = [];
-    /**
-     * @var bool|\Closure whether to delete related models
-     *
-     * function (ActiveRecord $model) {
-     *      // performed necessary actions related model
-     * }
-     */
-    public $deleteRelation = true;
-    /**
-     * @var bool
-     */
-    public $createRelation = true;
-
-
-    /**
-     * Initializes the object.
-     */
-    public function init()
+    public function setAttributes(array $attributes)
     {
-        $this->initAttributes();
-    }
-
-    /**
-     * The method leads the value of the field 'attributes' to the general form
-     */
-    protected function initAttributes()
-    {
-        $result = [];
-        foreach ($this->attributes as $key => $value) {
+        $this->attributes = [];
+        foreach ($attributes as $key => $value) {
             if (is_int($key) && is_string($value)) {
                 $key = $value;
             }
-            $result[] = [
+            $this->attributes[] = [
                 'watch' => is_string($key) ? $key : $value['watch'],
                 'field' => is_string($value) ? $value : $value['field'],
                 'value' => is_string($value) ? $key : $value['value'],
             ];
         }
-        $this->attributes = $result;
     }
 
     /**
@@ -127,21 +132,33 @@ class PushBehavior extends Behavior
      */
     public function events()
     {
-        return [
+        $events = [
             ActiveRecord::EVENT_AFTER_INSERT => 'afterInsert',
             ActiveRecord::EVENT_AFTER_UPDATE => 'afterUpdate',
-            ActiveRecord::EVENT_BEFORE_DELETE => 'beforeDelete'
         ];
+
+        if ($this->deleteRelation !== false) {
+            $events[ActiveRecord::EVENT_BEFORE_DELETE] = 'beforeDelete';
+        }
+
+        return $events;
     }
 
     /**
-     * Update or insert related model
+     * Insert related model
      */
     final public function afterInsert()
     {
         foreach ($this->getItemsIterator() as $model) {
-            if ($model === null && $this->createRelation === true) {
-                $model = $this->createRelationModel();
+            if ($model === null) {
+                if ($this->createRelation === false) {
+                    continue;
+                }
+                if ($this->createRelation === true) {
+                    $model = $this->createRelationModel();
+                } elseif (is_callable($this->createRelation)) {
+                    $model = call_user_func($this->createRelation);
+                }
             }
             $this->updateItem($model, $this->attributes);
             if ($model->getIsNewRecord()) {
@@ -159,7 +176,7 @@ class PushBehavior extends Behavior
     final public function afterUpdate(AfterSaveEvent $event)
     {
         if ($changedAttributes = $this->getChangedAttributes($event->changedAttributes)) {
-            foreach ($this->getItemsIterator() as $item) {
+            foreach ($this->getItemsIterator(true) as $item) {
                 $this->updateItem($item, $changedAttributes);
                 $item->save(false);
             }
@@ -172,10 +189,7 @@ class PushBehavior extends Behavior
      */
     final public function beforeDelete()
     {
-        if ($this->deleteRelation === false) {
-            return;
-        }
-        foreach ($this->getItemsIterator() as $item) {
+        foreach ($this->getItemsIterator(true) as $item) {
             if ($this->deleteRelation === true) {
                 $item->delete();
             } elseif (is_callable($this->deleteRelation)) {
@@ -194,9 +208,10 @@ class PushBehavior extends Behavior
     }
 
     /**
+     * @param bool $skip_empty
      * @return \Generator|ActiveRecordInterface[]
      */
-    private function getItemsIterator()
+    private function getItemsIterator($skip_empty = false)
     {
         $relation = $this->owner->getRelation($this->relation);
 
@@ -205,7 +220,14 @@ class PushBehavior extends Behavior
                 yield $item;
             }
         } else {
-            yield $relation->one();
+            $item = $relation->one();
+            if ($skip_empty === true) {
+                if ($item) {
+                    yield $item;
+                }
+            } else {
+                yield $item;
+            }
         }
     }
 
