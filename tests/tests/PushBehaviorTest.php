@@ -12,15 +12,17 @@ use PHPUnit\Framework\TestCase;
 
 class PushBehaviorTest extends TestCase
 {
-    public function tearDown()
+    /**
+     * To ensure that during the test, the base does not increase in size
+     * @param string|array $tables
+     * @throws \yii\db\Exception
+     */
+    public function clearTable($tables)
     {
-        // To ensure that during the test, the base does not increase in size
         $command = Yii::$app->getDb()->createCommand();
-        $command->truncateTable(User::tableName())->execute();
-        $command->truncateTable(ApiUser::tableName())->execute();
-        $command->truncateTable(UserPhone::tableName())->execute();
-        $command->truncateTable(UserProfile::tableName())->execute();
-        $command->truncateTable(Company::tableName())->execute();
+        foreach ((array)$tables as $table) {
+            $command->truncateTable($table)->execute();
+        }
     }
 
     public function testCRUDTargetModel()
@@ -55,6 +57,11 @@ class PushBehaviorTest extends TestCase
         // Delete
         $this->assertEquals($user->delete(), 1);
         $this->assertNull($this->getApiUser($user->id));
+
+        $this->clearTable([
+            User::tableName(),
+            ApiUser::tableName(),
+        ]);
     }
 
     public function testCRUDOneRelationModel()
@@ -81,6 +88,12 @@ class PushBehaviorTest extends TestCase
 
         $apiUser->refresh();
         $this->assertNull($apiUser->birthday);
+
+        $this->clearTable([
+            User::tableName(),
+            ApiUser::tableName(),
+            UserProfile::tableName(),
+        ]);
     }
 
     public function testCRUDManyRelationModel()
@@ -137,6 +150,12 @@ class PushBehaviorTest extends TestCase
 
         $this->assertTrue($apiUser->refresh());
         $this->assertEquals($phones, json_decode($apiUser->phones, true));
+
+        $this->clearTable([
+            User::tableName(),
+            ApiUser::tableName(),
+            UserPhone::tableName(),
+        ]);
     }
 
     public function testCRUDManyTargetRelationModel()
@@ -207,6 +226,12 @@ class PushBehaviorTest extends TestCase
         $apiUser_2->refresh();
         $this->assertNull($apiUser_2->company_id);
         $this->assertNull($apiUser_2->company_name);
+
+        $this->clearTable([
+            User::tableName(),
+            ApiUser::tableName(),
+            Company::tableName(),
+        ]);
     }
 
     /**
