@@ -40,8 +40,8 @@ class SerializeBehavior extends AttributeBehavior implements AttributeChangeInte
 
     public function loadData()
     {
-        $this->data = $this->decode($this->owner[$this->storageAttribute]);
-        $this->oldData = $this->data;
+        $data = $this->decode($this->owner[$this->storageAttribute]);
+        $this->oldData = $this->data = $data ?: [];
     }
 
     public function saveData()
