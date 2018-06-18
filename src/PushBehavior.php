@@ -4,9 +4,9 @@ namespace lav45\behaviors;
 
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
-use yii\db\ActiveRecordInterface;
 use yii\db\AfterSaveEvent;
 use yii\helpers\ArrayHelper;
+use yii\db\ActiveRecordInterface;
 
 /**
  * Class PushBehavior
@@ -71,15 +71,6 @@ class PushBehavior extends Behavior
      */
     private $attributes = [];
     /**
-     * @var bool|\Closure whether to delete related models
-     * Can be passed to \Closure then the user will be able to decide how to unlink the link to the linked model
-     * function (ActiveRecord $model) {
-     *      // performed necessary actions related model
-     *      $model->delete();
-     * }
-     */
-    public $deleteRelation = true;
-    /**
      * @var bool|\Closure whether to create related models
      * Can be passed to \Closure, then the user can instantiate the associated model
      * function () {
@@ -88,6 +79,23 @@ class PushBehavior extends Behavior
      * }
      */
     public $createRelation = true;
+    /**
+     * @var bool|\Closure whether to create related models
+     * Can be passed to \Closure, then the user can instantiate the associated model
+     * function (ActiveRecord $model) {
+     *      return $model;
+     * }
+     */
+    public $updateRelation = true;
+    /**
+     * @var bool|\Closure whether to delete related models
+     * Can be passed to \Closure then the user will be able to decide how to unlink the link to the linked model
+     * function (ActiveRecord $model) {
+     *      // performed necessary actions related model
+     *      $model->delete();
+     * }
+     */
+    public $deleteRelation = true;
 
     /**
      * The method converts the value of the attributes field to a common form
@@ -132,15 +140,16 @@ class PushBehavior extends Behavior
      */
     public function events()
     {
-        $events = [
-            ActiveRecord::EVENT_AFTER_INSERT => 'afterInsert',
-            ActiveRecord::EVENT_AFTER_UPDATE => 'afterUpdate',
-        ];
-
+        $events = [];
+        if ($this->createRelation !== false) {
+            $events[ActiveRecord::EVENT_AFTER_INSERT] = 'afterInsert';
+        }
+        if ($this->updateRelation !== false) {
+            $events[ActiveRecord::EVENT_AFTER_UPDATE] = 'afterUpdate';
+        }
         if ($this->deleteRelation !== false) {
             $events[ActiveRecord::EVENT_BEFORE_DELETE] = 'beforeDelete';
         }
-
         return $events;
     }
 
@@ -151,9 +160,6 @@ class PushBehavior extends Behavior
     {
         foreach ($this->getItemsIterator() as $model) {
             if ($model === null) {
-                if ($this->createRelation === false) {
-                    continue;
-                }
                 if ($this->createRelation === true) {
                     $model = $this->createRelationModel();
                 } elseif (is_callable($this->createRelation)) {
@@ -178,7 +184,11 @@ class PushBehavior extends Behavior
         if ($changedAttributes = $this->getChangedAttributes($event->changedAttributes)) {
             foreach ($this->getItemsIterator(true) as $item) {
                 $this->updateItem($item, $changedAttributes);
-                $item->save(false);
+                if ($this->updateRelation === true) {
+                    $item->save(false);
+                } elseif (is_callable($this->updateRelation)) {
+                    call_user_func($this->updateRelation, $item);
+                }
             }
         }
     }
