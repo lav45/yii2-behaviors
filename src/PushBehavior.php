@@ -71,6 +71,14 @@ class PushBehavior extends Behavior
      */
     private $attributes = [];
     /**
+     * @var bool|\Closure whether to create related models
+     * Can be passed to \Closure, then the user can instantiate the associated model
+     * function (ActiveRecord $model) {
+     *     $model->save();
+     * }
+     */
+    public $updateRelation = true;
+    /**
      * @var bool|\Closure whether to delete related models
      * Can be passed to \Closure then the user will be able to decide how to unlink the link to the linked model
      * function (ActiveRecord $model) {
@@ -83,8 +91,7 @@ class PushBehavior extends Behavior
      * @var bool|\Closure whether to create related models
      * Can be passed to \Closure, then the user can instantiate the associated model
      * function () {
-     *      $model = new Group(); // ActiveRecord extension
-     *      return $model;
+     *      return new Group(); // ActiveRecord extension
      * }
      */
     public $createRelation = true;
@@ -132,11 +139,11 @@ class PushBehavior extends Behavior
      */
     public function events()
     {
-        $events = [
-            ActiveRecord::EVENT_AFTER_INSERT => 'afterInsert',
-            ActiveRecord::EVENT_AFTER_UPDATE => 'afterUpdate',
-        ];
+        $events = [ActiveRecord::EVENT_AFTER_INSERT => 'afterInsert'];
 
+        if ($this->updateRelation !== false) {
+            $events[ActiveRecord::EVENT_AFTER_UPDATE] = 'afterUpdate';
+        }
         if ($this->deleteRelation !== false) {
             $events[ActiveRecord::EVENT_BEFORE_DELETE] = 'beforeDelete';
         }
@@ -178,7 +185,11 @@ class PushBehavior extends Behavior
         if ($changedAttributes = $this->getChangedAttributes($event->changedAttributes)) {
             foreach ($this->getItemsIterator(true) as $item) {
                 $this->updateItem($item, $changedAttributes);
-                $item->save(false);
+                if ($this->updateRelation === true) {
+                    $item->save(false);
+                } elseif (is_callable($this->updateRelation)) {
+                    call_user_func($this->updateRelation, $item);
+                }
             }
         }
     }

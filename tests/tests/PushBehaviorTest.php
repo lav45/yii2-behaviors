@@ -84,6 +84,22 @@ class PushBehaviorTest extends TestCase
         $apiUser->refresh();
         $this->assertEquals($userProfile->birthday, $apiUser->birthday);
 
+        //Update Closure
+        $flag = false;
+        /** @var \lav45\behaviors\PushBehavior $behavior */
+        $behavior = $userProfile->getBehavior('push');
+        $behavior->updateRelation = function (ApiUser $model) use (&$flag) {
+            $flag = true;
+            $model->save(false);
+        };
+
+        $userProfile->birthday = time() - 200;
+        $this->assertTrue($userProfile->save(false));
+
+        $apiUser->refresh();
+        $this->assertEquals($userProfile->birthday, $apiUser->birthday);
+        $this->assertTrue($flag);
+
         // Delete
         $this->assertEquals($userProfile->delete(), 1);
 
