@@ -140,10 +140,8 @@ class PushBehavior extends Behavior
      */
     public function events()
     {
-        $events = [];
-        if ($this->createRelation !== false) {
-            $events[ActiveRecord::EVENT_AFTER_INSERT] = 'afterInsert';
-        }
+        $events[ActiveRecord::EVENT_AFTER_INSERT] = 'afterInsert';
+
         if ($this->updateRelation !== false) {
             $events[ActiveRecord::EVENT_AFTER_UPDATE] = 'afterUpdate';
         }
@@ -160,6 +158,9 @@ class PushBehavior extends Behavior
     {
         foreach ($this->getItemsIterator() as $model) {
             if ($model === null) {
+                if ($this->createRelation === false) {
+                    continue;
+                }
                 if ($this->createRelation === true) {
                     $model = $this->createRelationModel();
                 } elseif (is_callable($this->createRelation)) {
