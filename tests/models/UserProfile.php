@@ -32,7 +32,7 @@ class UserProfile extends ActiveRecord
     public function behaviors()
     {
         return [
-            [
+            'push' => [
                 'class' => PushBehavior::class,
                 'relation' => 'apiUser',
                 'deleteRelation' => [$this, 'deleteRelation'],
