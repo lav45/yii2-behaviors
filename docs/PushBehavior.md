@@ -1,6 +1,6 @@
-# PushModelBehavior
+# PushBehavior
 
-This extension will help you to dernomalization your data structure, work with Model.
+This extension will help you to dernomalization your data structure, work with Relation.
 
 
 ## Using
