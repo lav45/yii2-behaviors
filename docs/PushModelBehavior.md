@@ -30,7 +30,7 @@ $user->delete();
 
 ## Configuration
 
-```
+```php
 /**
  * @inheritdoc
  */
