@@ -79,7 +79,7 @@ class SerializeBehavior extends AttributeBehavior implements AttributeChangeInte
         $value = $this->attributes[$name];
 
         if ($value instanceof \Closure) {
-            return call_user_func($value);
+            return $value();
         }
 
         return $value;

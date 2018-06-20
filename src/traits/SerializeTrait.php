@@ -7,15 +7,13 @@ trait SerializeTrait
     /**
      * @var \Closure|array|string|bool method that will be used to encode data
      * If you set the value to false, no action will be taken
-     * @see Json::encode()
      */
-    public $encode = 'yii\helpers\Json::htmlEncode';
+    public $encode;
     /**
      * @var \Closure|array|string|bool method that will be used to decode data
      * If you set the value to false, no action will be taken
-     * @see Json::decode()
      */
-    public $decode = 'yii\helpers\Json::decode';
+    public $decode;
 
     /**
      * @param array $value
@@ -23,8 +21,11 @@ trait SerializeTrait
      */
     protected function encode($value)
     {
-        if ($this->encode === false) {
+        if (false === $this->encode) {
             return $value;
+        }
+        if (null === $this->encode) {
+            return json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         }
         return call_user_func($this->encode, $value);
     }
@@ -35,8 +36,11 @@ trait SerializeTrait
      */
     protected function decode($value)
     {
-        if ($this->decode === false) {
+        if (false === $this->decode) {
             return $value;
+        }
+        if (null === $this->decode) {
+            return json_decode($value, true);
         }
         return call_user_func($this->decode, $value);
     }

@@ -30,7 +30,7 @@ class CorrectDateBehavior extends AttributeBehavior
     /**
      * @inheritdoc
      */
-    public $attributes = [];
+    public $attributes;
     /**
      * @var string|array|Formatter
      */

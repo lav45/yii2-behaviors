@@ -21,7 +21,7 @@ trait VirtualAttributesTrait
     {
         foreach ($this->getBehaviors() as $behavior) {
             if (
-                ($type === null || $behavior instanceof $type) &&
+                (null === $type || $behavior instanceof $type) &&
                 $behavior instanceof AttributeInterface &&
                 $behavior->hasAttribute($name)
             ) {

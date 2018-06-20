@@ -141,10 +141,10 @@ class PushBehavior extends Behavior
     {
         $events = [ActiveRecord::EVENT_AFTER_INSERT => 'afterInsert'];
 
-        if ($this->updateRelation !== false) {
+        if (false !== $this->updateRelation) {
             $events[ActiveRecord::EVENT_AFTER_UPDATE] = 'afterUpdate';
         }
-        if ($this->deleteRelation !== false) {
+        if (false !== $this->deleteRelation) {
             $events[ActiveRecord::EVENT_BEFORE_DELETE] = 'beforeDelete';
         }
 
@@ -157,11 +157,11 @@ class PushBehavior extends Behavior
     final public function afterInsert()
     {
         foreach ($this->getItemsIterator() as $model) {
-            if ($model === null) {
-                if ($this->createRelation === false) {
+            if (null === $model) {
+                if (false === $this->createRelation) {
                     continue;
                 }
-                if ($this->createRelation === true) {
+                if (true === $this->createRelation) {
                     $model = $this->createRelationModel();
                 } elseif (is_callable($this->createRelation)) {
                     $model = call_user_func($this->createRelation);
@@ -185,7 +185,7 @@ class PushBehavior extends Behavior
         if ($changedAttributes = $this->getChangedAttributes($event->changedAttributes)) {
             foreach ($this->getItemsIterator(true) as $item) {
                 $this->updateItem($item, $changedAttributes);
-                if ($this->updateRelation === true) {
+                if (true === $this->updateRelation) {
                     $item->save(false);
                 } elseif (is_callable($this->updateRelation)) {
                     call_user_func($this->updateRelation, $item);
@@ -201,7 +201,7 @@ class PushBehavior extends Behavior
     final public function beforeDelete()
     {
         foreach ($this->getItemsIterator(true) as $item) {
-            if ($this->deleteRelation === true) {
+            if (true === $this->deleteRelation) {
                 $item->delete();
             } elseif (is_callable($this->deleteRelation)) {
                 call_user_func($this->deleteRelation, $item);
@@ -226,13 +226,13 @@ class PushBehavior extends Behavior
     {
         $relation = $this->owner->getRelation($this->relation);
 
-        if ($relation->multiple === true) {
+        if (true === $relation->multiple) {
             foreach ($relation->each() as $item) {
                 yield $item;
             }
         } else {
             $item = $relation->one();
-            if ($skip_empty === true) {
+            if (true === $skip_empty) {
                 if ($item) {
                     yield $item;
                 }

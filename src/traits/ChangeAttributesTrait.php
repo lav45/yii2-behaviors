@@ -27,12 +27,10 @@ trait ChangeAttributesTrait
         if (isset($this->data[$name], $this->oldData[$name])) {
             if ($identical) {
                 return $this->data[$name] !== $this->oldData[$name];
-            } else {
-                return $this->data[$name] != $this->oldData[$name];
             }
-        } else {
-            return isset($this->data[$name]) || isset($this->oldData[$name]);
+            return $this->data[$name] != $this->oldData[$name];
         }
+        return isset($this->data[$name]) || isset($this->oldData[$name]);
     }
 
     /**
