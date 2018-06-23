@@ -7,7 +7,6 @@ use lav45\behaviors\tests\models\User;
 use lav45\behaviors\tests\models\ApiUser;
 use lav45\behaviors\tests\models\UserPhone;
 use lav45\behaviors\tests\models\UserProfile;
-use lav45\behaviors\tests\models\Department;
 use lav45\behaviors\tests\models\Company;
 use PHPUnit\Framework\TestCase;
 
@@ -248,96 +247,6 @@ class PushBehaviorTest extends TestCase
             User::tableName(),
             ApiUser::tableName(),
             Company::tableName(),
-        ]);
-    }
-
-    public function testChangeTargetRelationModel()
-    {
-        $user_1 = new User();
-        $user_1->login = 'buster';
-        $user_1->first_name = 'Buster';
-        $user_1->save(false);
-
-        $department_1 = new Department();
-        $department_1->name = 'alpha';
-        $department_1->save();
-
-        $this->assertEquals(0, $department_1->user_count);
-
-        $user_1->link('department', $department_1);
-
-        $department_1->refresh();
-        $this->assertEquals(1, $department_1->user_count);
-
-        $user_2 = new User();
-        $user_2->login = 'lusya';
-        $user_2->first_name = 'Lusya';
-        $user_2->save(false);
-
-        $user_2->link('department', $department_1);
-
-        $department_1->refresh();
-        $this->assertEquals(2, $department_1->user_count);
-
-
-        $department_2 = new Department();
-        $department_2->name = 'beta';
-        $department_2->save(false);
-
-        $this->assertEquals(0, $department_2->user_count);
-
-        $user_1->link('department', $department_2);
-
-        $department_2->refresh();
-        $this->assertEquals(1, $department_2->user_count);
-        $department_1->refresh();
-        $this->assertEquals(1, $department_1->user_count);
-
-
-        $department_main = new Department();
-        $department_main->name = 'main department';
-        $department_main->save();
-
-        $department_1->link('parent', $department_main);
-
-        $department_main->refresh();
-        $this->assertEquals(0, $department_main->user_count);
-        $this->assertEquals(1, $department_main->user_count_in_subdivision);
-        $this->assertEquals(1, $department_main->user_total_count);
-
-        $department_2->link('parent', $department_main);
-
-        $department_2->name .= ' 2';
-        $department_2->save();
-
-        $department_main->refresh();
-        $this->assertEquals(0, $department_main->user_count);
-        $this->assertEquals(2, $department_main->user_count_in_subdivision);
-        $this->assertEquals(2, $department_main->user_total_count);
-
-        $user_3 = new User();
-        $user_3->login = 'user';
-        $user_3->first_name = 'User';
-        $user_3->save(false);
-
-        $user_3->link('department', $department_main);
-
-        $department_main->refresh();
-        $this->assertEquals(1, $department_main->user_count);
-        $this->assertEquals(2, $department_main->user_count_in_subdivision);
-        $this->assertEquals(3, $department_main->user_total_count);
-
-        $user_2->link('department', $department_main);
-
-        $department_main->refresh();
-        $this->assertEquals(2, $department_main->user_count);
-        $this->assertEquals(1, $department_main->user_count_in_subdivision);
-        $this->assertEquals(3, $department_main->user_total_count);
-
-        $this->clearTable([
-            User::tableName(),
-            ApiUser::tableName(),
-            Department::tableName(),
         ]);
     }
 

@@ -26,7 +26,6 @@ class m171004_005025_init extends Migration
             'updated_at' => $this->integer()->notNull(),
             'last_login' => $this->integer(),
             'company_id' => $this->integer(),
-            'department_id' => $this->integer(),
         ]);
 
         // hasOne
@@ -60,16 +59,6 @@ class m171004_005025_init extends Migration
             'phones' => $this->string()->defaultValue('[]'),
             'company_id' => $this->integer(),
             'company_name' => $this->string(),
-        ]);
-
-        // change target relation model
-        $this->createTable('department', [
-            'id' => $this->primaryKey(),
-            'parent_id' => $this->integer(),
-            'name' => $this->string()->notNull(),
-            'user_count' => $this->integer()->notNull()->defaultValue(0),
-            'user_count_in_subdivision' => $this->integer()->notNull()->defaultValue(0),
-            'user_total_count' => $this->integer()->notNull()->defaultValue(0),
         ]);
     }
 }
