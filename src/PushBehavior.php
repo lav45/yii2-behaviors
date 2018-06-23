@@ -6,7 +6,7 @@ use yii\base\Behavior;
 use yii\db\ActiveRecord;
 use yii\db\ActiveRecordInterface;
 use yii\db\AfterSaveEvent;
-use yii\helpers\ArrayHelper;
+use lav45\behaviors\traits\WatchAttributesTrait;
 
 /**
  * Class PushBehavior
@@ -55,21 +55,12 @@ use yii\helpers\ArrayHelper;
  */
 class PushBehavior extends Behavior
 {
+    use WatchAttributesTrait;
+
     /**
      * @var string target relation name
      */
     public $relation;
-    /**
-     * @var array
-     * [
-     *     [
-     *         - watch: string|array => watch for changes in a few fields,
-     *         - field: string => set value in this relation attribute,
-     *         - value: string|array => get value from the attribute or path,
-     *     ],
-     * ]
-     */
-    private $attributes = [];
     /**
      * @var bool|\Closure whether to create related models
      * Can be passed to \Closure, then the user can instantiate the associated model
@@ -97,44 +88,6 @@ class PushBehavior extends Behavior
     public $createRelation = true;
 
     /**
-     * The method converts the value of the attributes field to a common form
-     * @param array $attributes
-     * Example: [
-     *     'id',
-     *     'login' => 'user_login',
-     *     'updated_at' => [
-     *         'field' => 'updatedAt',
-     *         'value' => 'updated_at',
-     *     ],
-     *     [
-     *         'watch' => 'status',
-     *         // 'watch' => ['status', 'username'],
-     *         'field' => 'statusName',
-     *         'value' => 'attribute',
-     *         // 'value' => 'array.key',
-     *         // 'value' => ['array', 'key'],
-     *         // 'value' => function($owner) {
-     *         //     return $owner->array['key'];
-     *         // },
-     *     ],
-     * ]
-     */
-    public function setAttributes(array $attributes)
-    {
-        $this->attributes = [];
-        foreach ($attributes as $key => $value) {
-            if (is_int($key) && is_string($value)) {
-                $key = $value;
-            }
-            $this->attributes[] = [
-                'watch' => is_string($key) ? $key : $value['watch'],
-                'field' => is_string($value) ? $value : $value['field'],
-                'value' => is_string($value) ? $key : $value['value'],
-            ];
-        }
-    }
-
-    /**
      * @inheritdoc
      */
     public function events()
@@ -156,7 +109,7 @@ class PushBehavior extends Behavior
      */
     final public function afterInsert()
     {
-        foreach ($this->getItemsIterator() as $model) {
+        foreach ($this->getRelationIterator() as $model) {
             if (null === $model) {
                 if (false === $this->createRelation) {
                     continue;
@@ -167,7 +120,7 @@ class PushBehavior extends Behavior
                     $model = call_user_func($this->createRelation);
                 }
             }
-            $this->updateItem($model, $this->attributes);
+            $this->updateModel($model, $this->attributes);
             if ($model->getIsNewRecord()) {
                 $this->owner->link($this->relation, $model);
             } else {
@@ -183,12 +136,12 @@ class PushBehavior extends Behavior
     final public function afterUpdate(AfterSaveEvent $event)
     {
         if ($changedAttributes = $this->getChangedAttributes($event->changedAttributes)) {
-            foreach ($this->getItemsIterator(true) as $item) {
-                $this->updateItem($item, $changedAttributes);
+            foreach ($this->getRelationIterator(true) as $model) {
+                $this->updateModel($model, $changedAttributes);
                 if (true === $this->updateRelation) {
-                    $item->save(false);
+                    $model->save(false);
                 } elseif (is_callable($this->updateRelation)) {
-                    call_user_func($this->updateRelation, $item);
+                    call_user_func($this->updateRelation, $model);
                 }
             }
         }
@@ -200,11 +153,11 @@ class PushBehavior extends Behavior
      */
     final public function beforeDelete()
     {
-        foreach ($this->getItemsIterator(true) as $item) {
+        foreach ($this->getRelationIterator(true) as $model) {
             if (true === $this->deleteRelation) {
-                $item->delete();
+                $model->delete();
             } elseif (is_callable($this->deleteRelation)) {
-                call_user_func($this->deleteRelation, $item);
+                call_user_func($this->deleteRelation, $model);
             }
         }
     }
@@ -222,7 +175,7 @@ class PushBehavior extends Behavior
      * @param bool $skip_empty
      * @return \Generator|ActiveRecordInterface[]
      */
-    private function getItemsIterator($skip_empty = false)
+    private function getRelationIterator($skip_empty = false)
     {
         $relation = $this->owner->getRelation($this->relation);
 
@@ -240,41 +193,5 @@ class PushBehavior extends Behavior
                 yield $item;
             }
         }
-    }
-
-    /**
-     * @param ActiveRecordInterface $model
-     * @param array $attributes
-     */
-    protected function updateItem($model, $attributes)
-    {
-        foreach ($attributes as $attribute) {
-            $model->{$attribute['field']} = ArrayHelper::getValue($this->owner, $attribute['value']);
-        }
-    }
-
-    /**
-     * @param array $changedAttributes
-     * @return array
-     */
-    private function getChangedAttributes($changedAttributes)
-    {
-        $result = [];
-        foreach ($this->attributes as $attribute) {
-            $watch = $attribute['watch'];
-            if (is_array($watch)) {
-                foreach ($watch as $item) {
-                    if (isset($changedAttributes[$item]) || array_key_exists($item, $changedAttributes)) {
-                        $result[] = $attribute;
-                        break;
-                    }
-                }
-            } else {
-                if (isset($changedAttributes[$watch]) || array_key_exists($watch, $changedAttributes)) {
-                    $result[] = $attribute;
-                }
-            }
-        }
-        return $result;
     }
 }

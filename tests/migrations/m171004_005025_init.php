@@ -60,5 +60,11 @@ class m171004_005025_init extends Migration
             'company_id' => $this->integer(),
             'company_name' => $this->string(),
         ]);
+
+        // PushModelBehavior
+        $this->createTable('push_model', [
+            'id' => $this->primaryKey(),
+            'username' => $this->string(),
+        ]);
     }
 }

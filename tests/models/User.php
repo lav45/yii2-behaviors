@@ -70,10 +70,8 @@ class User extends ActiveRecord
                         }
                     ],
 
-                    [
+                    'fio' => [
                         'watch' => ['first_name', 'last_name'],
-                        'field' => 'fio',
-                        'value' => 'fio', // $this->getFio()
                     ],
 
                     'company_id' => 'company_id',

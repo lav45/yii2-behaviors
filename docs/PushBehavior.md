@@ -1,6 +1,6 @@
 # PushBehavior
 
-This extension will help you to denormalization your data structure.
+This extension will help you to denormalization your data structure and transfer data to other models when saving, updating and deleting owner model.
 
 
 ## Using

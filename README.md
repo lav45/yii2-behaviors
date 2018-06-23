@@ -31,8 +31,8 @@ in ```require``` section in `composer.json` file.
 - [SerializeBehavior](docs/SerializeBehavior.md)
 - [SerializeProxyBehavior](docs/SerializeProxyBehavior.md)
 - [PushBehavior](docs/PushBehavior.md)
+- PushModelBehavior
 - [CorrectDateBehavior](docs/CorrectDateBehavior.md)
-- SearchIndexBehavior
 
 
 ## License
