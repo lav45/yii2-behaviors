@@ -21,51 +21,57 @@ class PushModelBehavior extends Behavior
      */
     public $targetClass;
     /**
-     * @var string
+     * @var string|\Closure|bool
      */
-    public $triggerAfterInsert = 'insert';
+    public $triggerInsert = 'insert';
     /**
-     * @var string
+     * @var string|\Closure|bool
      */
-    public $triggerAfterUpdate = 'update';
+    public $triggerUpdate = 'update';
     /**
-     * @var string
+     * @var string|\Closure|bool
      */
-    public $triggerAfterDelete = 'delete';
+    public $triggerDelete = 'delete';
 
     /**
      * @inheritdoc
      */
     public function events()
     {
-        return [
-            ActiveRecord::EVENT_AFTER_INSERT => 'afterInsert',
-            ActiveRecord::EVENT_AFTER_UPDATE => 'afterUpdate',
-            ActiveRecord::EVENT_AFTER_DELETE => 'afterDelete'
-        ];
+        $events = [];
+        if (false !== $this->triggerInsert) {
+            $events[ActiveRecord::EVENT_AFTER_INSERT] = 'insert';
+        }
+        if (false !== $this->triggerUpdate) {
+            $events[ActiveRecord::EVENT_AFTER_UPDATE] = 'update';
+        }
+        if (false !== $this->triggerDelete) {
+            $events[ActiveRecord::EVENT_AFTER_DELETE] = 'delete';
+        }
+        return $events;
     }
 
-    final public function afterInsert()
+    final public function insert()
     {
         $model = $this->getTargetModel();
         $this->updateModel($model, $this->attributes);
-        $model->{$this->triggerAfterInsert}();
+        $this->trigger($model, $this->triggerInsert);
     }
 
-    final public function afterUpdate(AfterSaveEvent $event)
+    final public function update(AfterSaveEvent $event)
     {
         if ($changedAttributes = $this->getChangedAttributes($event->changedAttributes)) {
             $model = $this->getTargetModel();
             $this->updateModel($model, $changedAttributes);
-            $model->{$this->triggerAfterUpdate}();
+            $this->trigger($model, $this->triggerUpdate);
         }
     }
 
-    final public function afterDelete()
+    final public function delete()
     {
         $model = $this->getTargetModel();
         $this->updateModel($model, $this->attributes);
-        $model->{$this->triggerAfterDelete}();
+        $this->trigger($model, $this->triggerDelete);
     }
 
     /**
@@ -74,12 +80,25 @@ class PushModelBehavior extends Behavior
      */
     protected function getTargetModel()
     {
-        if ($this->targetClass === null) {
+        if (null === $this->targetClass) {
             throw new InvalidConfigException(__CLASS__ . '::$targetClass must be filled');
         }
         if ($this->targetClass instanceof \Closure) {
             return call_user_func($this->targetClass);
         }
         return new $this->targetClass;
+    }
+
+    /**
+     * @param object $model
+     * @param string|\Closure $triggerFunc
+     */
+    private function trigger($model, $triggerFunc)
+    {
+        if ($triggerFunc instanceof \Closure) {
+            $triggerFunc($model);
+        } else {
+            $model->$triggerFunc();
+        }
     }
 }
