@@ -21,15 +21,15 @@ class PushModelBehavior extends Behavior
      */
     public $targetClass;
     /**
-     * @var string|\Closure|bool
+     * @var string|array|\Closure|null
      */
     public $triggerInsert = 'insert';
     /**
-     * @var string|\Closure|bool
+     * @var string|array|\Closure|null
      */
     public $triggerUpdate = 'update';
     /**
-     * @var string|\Closure|bool
+     * @var string|array|\Closure|null
      */
     public $triggerDelete = 'delete';
 
@@ -39,13 +39,13 @@ class PushModelBehavior extends Behavior
     public function events()
     {
         $events = [];
-        if (false !== $this->triggerInsert) {
+        if (!empty($this->triggerInsert)) {
             $events[ActiveRecord::EVENT_AFTER_INSERT] = 'insert';
         }
-        if (false !== $this->triggerUpdate) {
+        if (!empty($this->triggerUpdate)) {
             $events[ActiveRecord::EVENT_AFTER_UPDATE] = 'update';
         }
-        if (false !== $this->triggerDelete) {
+        if (!empty($this->triggerDelete)) {
             $events[ActiveRecord::EVENT_AFTER_DELETE] = 'delete';
         }
         return $events;
@@ -83,7 +83,7 @@ class PushModelBehavior extends Behavior
         if (null === $this->targetClass) {
             throw new InvalidConfigException(__CLASS__ . '::$targetClass must be filled');
         }
-        if ($this->targetClass instanceof \Closure) {
+        if (is_callable($this->targetClass)) {
             return call_user_func($this->targetClass);
         }
         return new $this->targetClass;
@@ -91,14 +91,14 @@ class PushModelBehavior extends Behavior
 
     /**
      * @param object $model
-     * @param string|\Closure $triggerFunc
+     * @param string|array|\Closure $triggerFunc
      */
     private function trigger($model, $triggerFunc)
     {
-        if ($triggerFunc instanceof \Closure) {
-            $triggerFunc($model);
+        if (is_string($triggerFunc)) {
+            call_user_func([$model, $triggerFunc]);
         } else {
-            $model->$triggerFunc();
+            call_user_func($triggerFunc, $model);
         }
     }
 }
