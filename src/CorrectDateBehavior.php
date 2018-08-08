@@ -14,7 +14,7 @@ use yii\i18n\Formatter;
  *  {
  *      return [
  *          [
- *              'class' => CorrectDateBehavior::class,
+ *              '__class' => CorrectDateBehavior::class,
  *              'format' => 'datetime',
  *              'attributes' => [
  *                  'dateFrom' => 'date_from',

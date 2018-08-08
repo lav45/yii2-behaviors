@@ -1,6 +1,6 @@
 {
     "name": "lav45/yii2-behaviors",
-    "description": "This is a set of Yii2 behaviors extensions",
+    "description": "This is a set of Yii 3.0 behaviors extensions",
     "keywords": [
         "yii2",
         "extension",
@@ -22,8 +22,7 @@
         }
     ],
     "require": {
-        "php": ">=5.5.0",
-        "yiisoft/yii2": "2.0.*"
+        "yiisoft/yii2-dev": "^3.0@dev"
     },
     "require-dev": {
         "roave/security-advisories": "dev-master",
@@ -38,7 +37,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "0.5.x-dev"
+            "dev-master": "1.0.x-dev"
         }
     }
 }

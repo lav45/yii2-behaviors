@@ -37,7 +37,7 @@ class UserPhone extends ActiveRecord
     {
         return [
             [
-                'class' => PushBehavior::class,
+                '__class' => PushBehavior::class,
                 'relation' => 'apiUser',
                 'deleteRelation' => [$this, 'deleteRelation'],
                 'createRelation' => false,

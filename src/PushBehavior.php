@@ -16,7 +16,7 @@ use lav45\behaviors\traits\WatchAttributesTrait;
  * {
  *      return [
  *          [
- *              'class' => PushBehavior::class,
+ *              '__class' => PushBehavior::class,
  *              'relation' => 'apiUser',
  *              'attributes' => [
  *                  // Observe the change in the `status` attribute

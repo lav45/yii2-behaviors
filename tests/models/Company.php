@@ -34,7 +34,7 @@ class Company extends ActiveRecord
     {
         return [
             [
-                'class' => PushBehavior::class,
+                '__class' => PushBehavior::class,
                 'relation' => 'apiUsers',
                 'deleteRelation' => [$this, 'deleteRelation'],
                 'createRelation' => false,

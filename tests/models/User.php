@@ -43,10 +43,10 @@ class User extends ActiveRecord
     {
         return [
             [
-                'class' => TimestampBehavior::class,
+                '__class' => TimestampBehavior::class,
             ],
             [
-                'class' => PushBehavior::class,
+                '__class' => PushBehavior::class,
                 'relation' => 'apiUser',
                 'attributes' => [
                     'id',

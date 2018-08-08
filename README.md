@@ -5,7 +5,7 @@
 [![Total Downloads](https://poser.pugx.org/lav45/yii2-behaviors/downloads)](https://packagist.org/packages/lav45/yii2-behaviors)
 [![Build Status](https://travis-ci.org/lav45/yii2-behaviors.svg?branch=master)](https://travis-ci.org/lav45/yii2-behaviors)
 
-This is a set of small Yii2 behaviors extensions.
+This is a set of small Yii 3.0 behaviors extensions.
 
 ## Installation
 
@@ -20,7 +20,7 @@ You can set the console
 or add
 
 ```
-"lav45/yii2-behaviors": "0.5.*"
+"lav45/yii2-behaviors": "^1.0"
 ```
 
 in ```require``` section in `composer.json` file.

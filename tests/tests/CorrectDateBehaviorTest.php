@@ -29,7 +29,7 @@ class CorrectDateBehaviorTest extends TestCase
         /** @var CorrectDateBehavior $behavior */
         $behavior = $model->getBehavior('correctDate');
         $behavior->formatter = [
-            'class' => Formatter::class,
+            '__class' => Formatter::class,
             'datetimeFormat' => 'medium',
         ];
 

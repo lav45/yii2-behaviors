@@ -33,7 +33,7 @@ class UserProfile extends ActiveRecord
     {
         return [
             'push' => [
-                'class' => PushBehavior::class,
+                '__class' => PushBehavior::class,
                 'relation' => 'apiUser',
                 'deleteRelation' => [$this, 'deleteRelation'],
                 'createRelation' => false,

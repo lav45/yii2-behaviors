@@ -36,7 +36,7 @@ class News extends ActiveRecord
     {
         return [
             'serialize' => [
-                'class' => SerializeBehavior::class,
+                '__class' => SerializeBehavior::class,
                 'storageAttribute' => '_data',
                 'attributes' => [
                     'description',
@@ -52,7 +52,7 @@ class News extends ActiveRecord
                 ]
             ],
             'serializeProxy' => [
-                'class' => SerializeProxyBehavior::class,
+                '__class' => SerializeProxyBehavior::class,
                 'attributes' => [
                     'tags' => '_tags',
                     'options' => '_options',

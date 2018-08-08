@@ -23,7 +23,7 @@ class PushModel extends ActiveRecord
     {
         return [
             'push' => [
-                'class' => PushModelBehavior::class,
+                '__class' => PushModelBehavior::class,
                 'targetClass' => TargetModel::class,
                 'attributes' => [
                     'id' => [

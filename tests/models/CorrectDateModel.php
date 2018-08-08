@@ -27,7 +27,7 @@ class CorrectDateModel extends Model
     {
         return [
             'correctDate' => [
-                'class' => CorrectDateBehavior::class,
+                '__class' => CorrectDateBehavior::class,
                 'attributes' => [
                     'dateFrom' => 'date_from',
                     'dateTo' => 'date_to',
