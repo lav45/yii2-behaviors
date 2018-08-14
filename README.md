@@ -20,7 +20,7 @@ You can set the console
 or add
 
 ```
-"lav45/yii2-behaviors": "0.5.*"
+"lav45/yii2-behaviors": "0.6.*"
 ```
 
 in ```require``` section in `composer.json` file.
@@ -31,7 +31,7 @@ in ```require``` section in `composer.json` file.
 - [SerializeBehavior](docs/SerializeBehavior.md)
 - [SerializeProxyBehavior](docs/SerializeProxyBehavior.md)
 - [PushBehavior](docs/PushBehavior.md)
-- PushModelBehavior
+- [PushModelBehavior](docs/PushModelBehavior.md)
 - [CorrectDateBehavior](docs/CorrectDateBehavior.md)
 
 
