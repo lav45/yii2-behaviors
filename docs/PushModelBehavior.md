@@ -12,30 +12,24 @@ public function behaviors()
 {
     return [
         [
-                'class' => PushModelBehavior::class,
-                'targetClass' => TargetModel::class,
-                'triggerInsert' => function (TargetModel $model) {
-                    if ($this->employee->id) {
-                        $model->save();
-                    }
-                },
-                'triggerUpdate' => function (TargetModel $model) {
-                    if ($this->employee->id) {
-                        $model->save();
-                    }
-                },
-                'triggerBeforeDelete' => false,
-                'triggerAfterDelete' => [$this, 'targetAfterDelete'],
-                'attributes' => [
-                    [
-                        'watch' => 'email',
-                        'field' => 'id',
-                        'value' => function () {
-                            return $this->employee->id;
-                        },
-                    ],
-                    'email',
+            'class' => PushModelBehavior::class,
+            'targetClass' => TargetModel::class,
+            'triggerAfterInsert' => 'save',
+            'triggerAfterUpdate' => function (TargetModel $model) {
+                $model->save();
+            },
+            'triggerBeforeDelete' => null,
+            'triggerAfterDelete' => [$this, 'targetAfterDelete'],
+            'attributes' => [
+                [
+                    'watch' => 'email',
+                    'field' => 'id',
+                    'value' => function () {
+                        return $this->employee->id;
+                    },
                 ],
+                'email',
+            ],
         ],
     ];
 }
@@ -45,9 +39,7 @@ public function behaviors()
  */ 
 public function targetAfterDelete(TargetModel $model)
 {
-    if ($this->employee->id) {
-        $model->delete();
-    }
+    $model->delete();
 }
 ```
 

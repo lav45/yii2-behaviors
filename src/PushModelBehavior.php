@@ -23,19 +23,19 @@ class PushModelBehavior extends Behavior
     /**
      * @var string|array|\Closure|null
      */
-    public $triggerInsert = 'insert';
+    public $triggerAfterInsert = 'insert';
     /**
      * @var string|array|\Closure|null
      */
-    public $triggerUpdate = 'update';
+    public $triggerAfterUpdate = 'update';
     /**
      * @var string|array|\Closure|null
      */
-    public $triggerBeforeDelete = 'beforeDelete';
+    public $triggerBeforeDelete;
     /**
      * @var string|array|\Closure|null
      */
-    public $triggerAfterDelete = 'afterDelete';
+    public $triggerAfterDelete = 'delete';
 
     /**
      * @inheritdoc
@@ -43,11 +43,11 @@ class PushModelBehavior extends Behavior
     public function events()
     {
         $events = [];
-        if (!empty($this->triggerInsert)) {
-            $events[ActiveRecord::EVENT_AFTER_INSERT] = 'insert';
+        if (!empty($this->triggerAfterInsert)) {
+            $events[ActiveRecord::EVENT_AFTER_INSERT] = 'afterInsert';
         }
-        if (!empty($this->triggerUpdate)) {
-            $events[ActiveRecord::EVENT_AFTER_UPDATE] = 'update';
+        if (!empty($this->triggerAfterUpdate)) {
+            $events[ActiveRecord::EVENT_AFTER_UPDATE] = 'afterUpdate';
         }
         if (!empty($this->triggerBeforeDelete)) {
             $events[ActiveRecord::EVENT_BEFORE_DELETE] = 'beforeDelete';
@@ -61,23 +61,23 @@ class PushModelBehavior extends Behavior
     /**
      * @throws InvalidConfigException
      */
-    final public function insert()
+    final public function afterInsert()
     {
         $model = $this->getTargetModel();
         $this->updateModel($model, $this->attributes);
-        $this->trigger($model, $this->triggerInsert);
+        $this->trigger($model, $this->triggerAfterInsert);
     }
 
     /**
      * @param AfterSaveEvent $event
      * @throws InvalidConfigException
      */
-    final public function update(AfterSaveEvent $event)
+    final public function afterUpdate(AfterSaveEvent $event)
     {
         if ($changedAttributes = $this->getChangedAttributes($event->changedAttributes)) {
             $model = $this->getTargetModel();
             $this->updateModel($model, $changedAttributes);
-            $this->trigger($model, $this->triggerUpdate);
+            $this->trigger($model, $this->triggerAfterUpdate);
         }
     }
 
