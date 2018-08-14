@@ -31,7 +31,11 @@ class PushModelBehavior extends Behavior
     /**
      * @var string|array|\Closure|null
      */
-    public $triggerDelete = 'delete';
+    public $triggerBeforeDelete = 'beforeDelete';
+    /**
+     * @var string|array|\Closure|null
+     */
+    public $triggerAfterDelete = 'afterDelete';
 
     /**
      * @inheritdoc
@@ -45,12 +49,18 @@ class PushModelBehavior extends Behavior
         if (!empty($this->triggerUpdate)) {
             $events[ActiveRecord::EVENT_AFTER_UPDATE] = 'update';
         }
-        if (!empty($this->triggerDelete)) {
-            $events[ActiveRecord::EVENT_AFTER_DELETE] = 'delete';
+        if (!empty($this->triggerBeforeDelete)) {
+            $events[ActiveRecord::EVENT_BEFORE_DELETE] = 'beforeDelete';
+        }
+        if (!empty($this->triggerAfterDelete)) {
+            $events[ActiveRecord::EVENT_AFTER_DELETE] = 'afterDelete';
         }
         return $events;
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     final public function insert()
     {
         $model = $this->getTargetModel();
@@ -58,6 +68,10 @@ class PushModelBehavior extends Behavior
         $this->trigger($model, $this->triggerInsert);
     }
 
+    /**
+     * @param AfterSaveEvent $event
+     * @throws InvalidConfigException
+     */
     final public function update(AfterSaveEvent $event)
     {
         if ($changedAttributes = $this->getChangedAttributes($event->changedAttributes)) {
@@ -67,11 +81,24 @@ class PushModelBehavior extends Behavior
         }
     }
 
-    final public function delete()
+    /**
+     * @throws InvalidConfigException
+     */
+    final public function beforeDelete()
     {
         $model = $this->getTargetModel();
         $this->updateModel($model, $this->attributes);
-        $this->trigger($model, $this->triggerDelete);
+        $this->trigger($model, $this->triggerBeforeDelete);
+    }
+
+    /**
+     * @throws InvalidConfigException
+     */
+    final public function afterDelete()
+    {
+        $model = $this->getTargetModel();
+        $this->updateModel($model, $this->attributes);
+        $this->trigger($model, $this->triggerAfterDelete);
     }
 
     /**

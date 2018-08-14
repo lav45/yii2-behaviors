@@ -31,7 +31,13 @@ class TargetModel extends Model
         static::$lastAttributes = $this->attributes;
     }
 
-    public function delete()
+    public function beforeDelete()
+    {
+        static::$lastAction = self::ACTION_DELETE;
+        static::$lastAttributes = $this->attributes;
+    }
+
+    public function afterDelete()
     {
         static::$lastAction = self::ACTION_DELETE;
         static::$lastAttributes = $this->attributes;
