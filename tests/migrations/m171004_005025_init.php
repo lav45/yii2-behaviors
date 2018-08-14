@@ -66,5 +66,9 @@ class m171004_005025_init extends Migration
             'id' => $this->primaryKey(),
             'username' => $this->string(),
         ]);
+        $this->createTable('target_model', [
+            'id' => $this->primaryKey(),
+            'username' => $this->string(),
+        ]);
     }
 }
