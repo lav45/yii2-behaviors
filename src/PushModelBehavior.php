@@ -17,22 +17,28 @@ class PushModelBehavior extends Behavior
     use WatchAttributesTrait;
 
     /**
-     * @var string|\Closure class namespace or custom function that will return the desired object
+     * Class namespace or custom function that will return the desired object
+     * @var string|\Closure
      */
     public $targetClass;
     /**
+     * The method that will be called from the target model on the event [[ActiveRecord::EVENT_AFTER_INSERT]]
      * @var string|array|\Closure|null
      */
     public $triggerAfterInsert = 'insert';
     /**
+     * The method that will be called from the target model on the event [[ActiveRecord::EVENT_AFTER_UPDATE]]
      * @var string|array|\Closure|null
      */
     public $triggerAfterUpdate = 'update';
     /**
+     * The method that will be called from the target model on the event [[ActiveRecord::EVENT_BEFORE_DELETE]]
+     * by default, nothing happens
      * @var string|array|\Closure|null
      */
     public $triggerBeforeDelete;
     /**
+     * The method that will be called from the target model on the event [[ActiveRecord::EVENT_AFTER_DELETE]]
      * @var string|array|\Closure|null
      */
     public $triggerAfterDelete = 'delete';
