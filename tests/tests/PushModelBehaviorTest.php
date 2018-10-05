@@ -91,6 +91,22 @@ class PushModelBehaviorTest extends TestCase
         $this->assertEquals($expected, TargetModel::$lastAttributes);
         $this->assertEquals(TargetModel::ACTION_AFTER_UPDATE, array_pop(TargetModel::$lastAction));
 
+        // Update without trigger update method from TargetModel
+        TargetModel::$lastAction = [];
+        TargetModel::$lastAttributes = [];
+
+        $behavior->setAttributes(['id', 'username' => 'login']);
+
+        $model->save();
+
+        $this->assertEquals([], TargetModel::$lastAttributes);
+        $this->assertEquals([], TargetModel::$lastAction);
+
+        $behavior->setAttributes([
+            'id' => ['watch' => true],
+            'username' => 'login',
+        ]);
+
         // Delete
         if ($triggerBeforeDelete) {
             $behavior->triggerBeforeDelete = $triggerBeforeDelete;
