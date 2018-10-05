@@ -22,30 +22,30 @@ class User extends \yii\db\ActiveRecord
                 'targetClass' => TargetModel::class,
 
                 // What fields should be changed and where to send data
+                // @see \lav45\behaviors\traits\WatchAttributesTrait::setAttributes()
                 'attributes' => [
                     [
-                        'watch' => 'email',
-                        'field' => 'id',
-                        'value' => function () {
+                        'watch' => 'email', // watch for changes in a few fields
+                        'field' => 'id', // set value in this relation attribute
+                        'value' => function () { // get value from the attribute or path
                             return $this->employee->id;
                         },
                     ],
                     'email',
                 ],
-                
-                // The method that will be called from the target model on the event [[ActiveRecord::EVENT_AFTER_INSERT]]
-                'triggerAfterInsert' => 'save',
-                
-                // The method that will be called from the target model on the event [[ActiveRecord::EVENT_AFTER_UPDATE]]
-                'triggerAfterUpdate' => function (TargetModel $model) {
-                    $model->save();
-                },
-                
-                // If you want to disable the event action
-                'triggerAfterDelete' => null,
-                
-                // Another option is to assign your handler
-                'triggerAfterDelete' => [$this, 'targetAfterDelete'],
+
+                'events' => [
+                    // The method that will be called from the target model on the event [[ActiveRecord::EVENT_AFTER_INSERT]]
+                    ActiveRecord::EVENT_AFTER_INSERT => 'save',
+
+                    // The callback that will be called from the target model on the event [[ActiveRecord::EVENT_AFTER_UPDATE]]
+                    ActiveRecord::EVENT_AFTER_UPDATE => function (TargetModel $model) {
+                        $model->save();
+                    },
+
+                    // Another option is to assign your handler
+                    ActiveRecord::EVENT_AFTER_DELETE => [$this, 'targetAfterDelete'],
+                ],
             ],
         ];
     }
