@@ -35,6 +35,14 @@ in ```require``` section in `composer.json` file.
 - [CorrectDateBehavior](docs/CorrectDateBehavior.md)
 
 
+# Testing
+
+```
+~$ docker build --pull --rm -t php74-test .
+~$ ./container composer update --prefer-dist
+~$ ./container vendor/bin/phpunit
+```
+
 ## License
 
 **yii2-behaviors** it is available under a BSD 3-Clause License. Detailed information can be found in the `LICENSE.md`.
