@@ -5,7 +5,7 @@ namespace lav45\behaviors\tests\tests;
 use lav45\behaviors\CorrectDateBehavior;
 use lav45\behaviors\tests\models\CorrectDateModel;
 use PHPUnit\Framework\TestCase;
-use yii\i18n\Formatter;
+use Yii;
 
 class CorrectDateBehaviorTest extends TestCase
 {
@@ -29,13 +29,12 @@ class CorrectDateBehaviorTest extends TestCase
         /** @var CorrectDateBehavior $behavior */
         $behavior = $model->getBehavior('correctDate');
         $behavior->formatter = [
-            'class' => Formatter::class,
-            'datetimeFormat' => 'medium',
+            'datetimeFormat' => 'php:M d, Y, H:i:s A',
         ];
 
         $model->date_to = 1520904900;
 
-        $this->assertEquals('Mar 13, 2018, 1:35:00 AM', $model->dateTo);
+        $this->assertEquals('Mar 13, 2018, 01:35:00 AM', $model->dateTo);
     }
 
     public function testSetCustomFormat()
@@ -51,7 +50,7 @@ class CorrectDateBehaviorTest extends TestCase
 
     public function testSetCustomTimeZone()
     {
-        \Yii::$app->timeZone = 'Europe/Minsk';
+        Yii::$app->timeZone = 'Europe/Minsk';
 
         $model = new CorrectDateModel();
         $model->dateFrom = '13.03.2018 01:35';
