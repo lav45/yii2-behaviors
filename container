@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+docker run --rm --interactive --tty \
+  -u $(id -u):$(id -g) \
+  -v $PWD:/app \
+  -w /app \
+  php74-test $@
