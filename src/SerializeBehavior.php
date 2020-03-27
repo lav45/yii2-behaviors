@@ -2,6 +2,7 @@
 
 namespace lav45\behaviors;
 
+use Closure;
 use yii\db\ActiveRecord;
 use lav45\behaviors\contracts\AttributeChangeInterface;
 use lav45\behaviors\contracts\OldAttributeInterface;
@@ -12,7 +13,6 @@ use lav45\behaviors\traits\SerializeTrait;
  * Class SerializeBehavior
  * @package lav45\behaviors
  *
- * @property ActiveRecord $owner
  * @property-write array $attributes
  */
 class SerializeBehavior extends AttributeBehavior implements AttributeChangeInterface, OldAttributeInterface
@@ -33,8 +33,10 @@ class SerializeBehavior extends AttributeBehavior implements AttributeChangeInte
     {
         return [
             ActiveRecord::EVENT_AFTER_FIND => 'loadData',
-            ActiveRecord::EVENT_BEFORE_INSERT => 'saveData',
-            ActiveRecord::EVENT_BEFORE_UPDATE => 'saveData',
+            ActiveRecord::EVENT_BEFORE_INSERT => 'beforeSave',
+            ActiveRecord::EVENT_BEFORE_UPDATE => 'beforeSave',
+            ActiveRecord::EVENT_AFTER_INSERT => 'afterSave',
+            ActiveRecord::EVENT_AFTER_UPDATE => 'afterSave',
         ];
     }
 
@@ -44,12 +46,16 @@ class SerializeBehavior extends AttributeBehavior implements AttributeChangeInte
         $this->oldData = $this->data = $data ?: [];
     }
 
-    public function saveData()
+    public function beforeSave()
     {
         if ($this->data !== $this->oldData) {
-            $this->oldData = $this->data;
             $this->owner[$this->storageAttribute] = $this->encode($this->data);
         }
+    }
+
+    public function afterSave()
+    {
+        $this->oldData = $this->data;
     }
 
     /**
@@ -78,7 +84,7 @@ class SerializeBehavior extends AttributeBehavior implements AttributeChangeInte
 
         $value = $this->attributes[$name];
 
-        if ($value instanceof \Closure) {
+        if ($value instanceof Closure) {
             return $value();
         }
 
