@@ -64,13 +64,15 @@ class CorrectDateBehavior extends AttributeBehavior
     }
 
     /**
-     * @param string $name
+     * @param string|null $name
      * @param string $value
      */
     public function setAttribute($name, $value)
     {
         if (!empty($value)) {
             $this->owner->{$this->attributes[$name]} = $this->getFormatter()->asTimestamp($value . ' ' . Yii::$app->timeZone);
+        } else {
+            $this->owner->{$this->attributes[$name]} = $value;
         }
     }
 }
