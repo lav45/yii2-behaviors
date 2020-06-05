@@ -262,43 +262,20 @@ class PushBehaviorTest extends TestCase
         $user->link('email', $userEmail);
 
         $apiUser = $this->getApiUser($user->id);
-        $this->assertNotEquals($userEmail->email, $apiUser->email);
+        $this->assertEquals($userEmail->email, $apiUser->email);
 
         // Update
-        $apiUser->email = 'test-222@test.com';
-        $apiUser->save(false);
+        $userEmail->enable = false;
         $userEmail->email = 'test-2@test.com';
         $this->assertTrue($userEmail->save(false));
 
         $apiUser->refresh();
         $this->assertNotEquals($userEmail->email, $apiUser->email);
-
-        //Update Closure
-        $flag = false;
-        /** @var \lav45\behaviors\PushBehavior $behavior */
-        $behavior = $userEmail->getBehavior('push');
-        $behavior->updateRelation = function (ApiUser $model) use (&$flag) {
-            $flag = true;
-            $model->save(false);
-        };
-
-        $userEmail->email = 'test-2@test.com';
-        $this->assertTrue($userEmail->save(false));
-
-        $apiUser->refresh();
-        $this->assertNotEquals($userEmail->email, $apiUser->email);
-        $this->assertFalse($flag);
-
-        // Delete
-        $this->assertEquals($userEmail->delete(), 1);
-
-        $apiUser->refresh();
-        $this->assertNotNull($apiUser->email);
 
         $this->clearTable([
             User::tableName(),
             ApiUser::tableName(),
-            UserProfile::tableName(),
+            UserEmail::tableName(),
         ]);
     }
 

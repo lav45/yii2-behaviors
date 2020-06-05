@@ -16,6 +16,9 @@ use yii\db\ActiveRecord;
  */
 class UserEmail extends ActiveRecord
 {
+    /** @var bool */
+    public $enable = true;
+
     /**
      * @return array
      */
@@ -35,8 +38,8 @@ class UserEmail extends ActiveRecord
             'push' => [
                 'class' => PushBehavior::class,
                 'relation' => 'apiUser',
-                'enable' => static function () {
-                    return false;
+                'enable' => function () {
+                    return $this->enable;
                 },
                 'deleteRelation' => [$this, 'deleteRelation'],
                 'createRelation' => false,

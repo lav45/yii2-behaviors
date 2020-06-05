@@ -227,6 +227,6 @@ class PushBehavior extends Behavior
         if (is_bool($this->enable)) {
             return $this->enable;
         }
-        return $this->enable = (bool)call_user_func($this->enable);
+        return (bool)call_user_func($this->enable);
     }
 }
