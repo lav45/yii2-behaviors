@@ -2,11 +2,11 @@
 
 namespace lav45\behaviors;
 
+use lav45\behaviors\traits\WatchAttributesTrait;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 use yii\db\ActiveRecordInterface;
 use yii\db\AfterSaveEvent;
-use lav45\behaviors\traits\WatchAttributesTrait;
 
 /**
  * Class PushBehavior
@@ -18,6 +18,7 @@ use lav45\behaviors\traits\WatchAttributesTrait;
  *          [
  *              'class' => PushBehavior::class,
  *              'relation' => 'apiUser',
+ *              'enable' => true,
  *              'attributes' => [
  *                  // Observe the change in the `status` attribute
  *                  // Writes the "value" in field `status` the relation model
@@ -56,6 +57,15 @@ use lav45\behaviors\traits\WatchAttributesTrait;
 class PushBehavior extends Behavior
 {
     use WatchAttributesTrait;
+
+    /**
+     * @var bool
+     * Can be passed to \Closure for enable or disable Behavior
+     * function () {
+     *      return true;
+     * }
+     */
+    public $enable;
 
     /**
      * @var string target relation name
@@ -109,6 +119,10 @@ class PushBehavior extends Behavior
      */
     final public function afterInsert()
     {
+        if ($this->enable === false) {
+            return;
+        }
+
         foreach ($this->getRelationIterator() as $model) {
             if (null === $model) {
                 if (false === $this->createRelation) {
@@ -135,6 +149,10 @@ class PushBehavior extends Behavior
      */
     final public function afterUpdate(AfterSaveEvent $event)
     {
+        if ($this->enable === false) {
+            return;
+        }
+
         if ($changedAttributes = $this->getChangedAttributes($event->changedAttributes)) {
             foreach ($this->getRelationIterator(true) as $model) {
                 $this->updateModel($model, $changedAttributes);
@@ -153,6 +171,10 @@ class PushBehavior extends Behavior
      */
     final public function beforeDelete()
     {
+        if ($this->enable === false) {
+            return;
+        }
+
         foreach ($this->getRelationIterator(true) as $model) {
             if (true === $this->deleteRelation) {
                 $model->delete();
