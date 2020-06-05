@@ -18,7 +18,9 @@ use yii\db\AfterSaveEvent;
  *          [
  *              'class' => PushBehavior::class,
  *              'relation' => 'apiUser',
- *              'enable' => true,
+ *              'enable' => static function () {
+ *                  return true;
+ *              },
  *              'attributes' => [
  *                  // Observe the change in the `status` attribute
  *                  // Writes the "value" in field `status` the relation model
