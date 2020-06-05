@@ -34,6 +34,12 @@ class m171004_005025_init extends Migration
             'birthday' => $this->integer(),
         ]);
 
+        // hasOne
+        $this->createTable('user_email', [
+            'user_id' => $this->primaryKey(),
+            'email' => $this->string(),
+        ]);
+
         // hasMany
         $this->createTable('user_phone', [
             'id' => $this->primaryKey(),
@@ -57,6 +63,7 @@ class m171004_005025_init extends Migration
             'lastLogin' => $this->integer(),
             'birthday' => $this->integer(),
             'phones' => $this->string()->defaultValue('[]'),
+            'email' => $this->string(),
             'company_id' => $this->integer(),
             'company_name' => $this->string(),
         ]);

@@ -2,6 +2,7 @@
 
 namespace lav45\behaviors\tests\tests;
 
+use lav45\behaviors\tests\models\UserEmail;
 use Yii;
 use lav45\behaviors\tests\models\User;
 use lav45\behaviors\tests\models\ApiUser;
@@ -248,6 +249,33 @@ class PushBehaviorTest extends TestCase
             User::tableName(),
             ApiUser::tableName(),
             Company::tableName(),
+        ]);
+    }
+
+    public function testEnable()
+    {
+        $user = $this->createUser();
+
+        // Create
+        $userEmail = new UserEmail();
+        $userEmail->email = 'test-1@test.com';
+        $user->link('email', $userEmail);
+
+        $apiUser = $this->getApiUser($user->id);
+        $this->assertEquals($userEmail->email, $apiUser->email);
+
+        // Update
+        $userEmail->enable = false;
+        $userEmail->email = 'test-2@test.com';
+        $this->assertTrue($userEmail->save(false));
+
+        $apiUser->refresh();
+        $this->assertNotEquals($userEmail->email, $apiUser->email);
+
+        $this->clearTable([
+            User::tableName(),
+            ApiUser::tableName(),
+            UserEmail::tableName(),
         ]);
     }
 
