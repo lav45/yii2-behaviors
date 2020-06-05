@@ -2,8 +2,8 @@
 
 namespace lav45\behaviors\tests\models;
 
-use yii\db\ActiveRecord;
 use lav45\behaviors\PushBehavior;
+use yii\db\ActiveRecord;
 
 /**
  * Class UserEmail
@@ -35,7 +35,9 @@ class UserEmail extends ActiveRecord
             'push' => [
                 'class' => PushBehavior::class,
                 'relation' => 'apiUser',
-                'enable' => false,
+                'enable' => static function () {
+                    return false;
+                },
                 'deleteRelation' => [$this, 'deleteRelation'],
                 'createRelation' => false,
                 'attributes' => [

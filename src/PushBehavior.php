@@ -59,13 +59,13 @@ class PushBehavior extends Behavior
     use WatchAttributesTrait;
 
     /**
-     * @var bool
+     * @var bool|\Closure
      * Can be passed to \Closure for enable or disable Behavior
      * function () {
      *      return true;
      * }
      */
-    public $enable;
+    public $enable = true;
 
     /**
      * @var string target relation name
@@ -119,7 +119,7 @@ class PushBehavior extends Behavior
      */
     final public function afterInsert()
     {
-        if ($this->enable === false) {
+        if ($this->isEnable() === false) {
             return;
         }
 
@@ -149,7 +149,7 @@ class PushBehavior extends Behavior
      */
     final public function afterUpdate(AfterSaveEvent $event)
     {
-        if ($this->enable === false) {
+        if ($this->isEnable() === false) {
             return;
         }
 
@@ -171,7 +171,7 @@ class PushBehavior extends Behavior
      */
     final public function beforeDelete()
     {
-        if ($this->enable === false) {
+        if ($this->isEnable() === false) {
             return;
         }
 
@@ -215,5 +215,16 @@ class PushBehavior extends Behavior
                 yield $item;
             }
         }
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isEnable()
+    {
+        if (is_bool($this->enable)) {
+            return $this->enable;
+        }
+        return $this->enable = (bool)call_user_func($this->enable);
     }
 }
