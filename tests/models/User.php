@@ -22,6 +22,7 @@ use lav45\behaviors\PushBehavior;
  * @property ApiUser $apiUser
  * @property Company $company
  * @property UserProfile $profile
+ * @property UserEmail $email
  * @property UserPhone $phones
  */
 class User extends ActiveRecord
@@ -132,6 +133,14 @@ class User extends ActiveRecord
     public function getProfile()
     {
         return $this->hasOne(UserProfile::class, ['user_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getEmail()
+    {
+        return $this->hasOne(UserEmail::class, ['user_id' => 'id']);
     }
 
     /**

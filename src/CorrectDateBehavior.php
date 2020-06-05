@@ -15,6 +15,10 @@ use yii\i18n\Formatter;
  *      return [
  *          [
  *              '__class' => CorrectDateBehavior::class,
+ *              'formatter' => [
+ *                  'timeZone' => 'UTC',
+ *                  'datetimeFormat' => 'dd.MM.yyyy HH:mm:ss',
+ *              ],
  *              'format' => 'datetime',
  *              'attributes' => [
  *                  'dateFrom' => 'date_from',
@@ -64,11 +68,16 @@ class CorrectDateBehavior extends AttributeBehavior
     }
 
     /**
-     * @param string $name
+     * @param string|null $name
      * @param string $value
      */
     public function setAttribute($name, $value)
     {
-        $this->owner->{$this->attributes[$name]} = $this->getFormatter()->asTimestamp($value . ' ' . Yii::$app->timeZone);
+        if (empty($value)) {
+            $this->owner->{$this->attributes[$name]} = null;
+        } else {
+            $formatter = $this->getFormatter();
+            $this->owner->{$this->attributes[$name]} = $formatter->asTimestamp($value . ' ' . $formatter->timeZone);
+        }
     }
 }

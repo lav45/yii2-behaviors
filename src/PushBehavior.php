@@ -2,11 +2,12 @@
 
 namespace lav45\behaviors;
 
+use lav45\behaviors\traits\WatchAttributesTrait;
 use yii\base\Behavior;
+use yii\base\ModelEvent;
 use yii\db\ActiveRecord;
 use yii\db\ActiveRecordInterface;
 use yii\db\AfterSaveEvent;
-use lav45\behaviors\traits\WatchAttributesTrait;
 
 /**
  * Class PushBehavior
@@ -18,6 +19,14 @@ use lav45\behaviors\traits\WatchAttributesTrait;
  *          [
  *              '__class' => PushBehavior::class,
  *              'relation' => 'apiUser',
+ *              'updateRelation' => function (ActiveRecord $model) {
+ *                  $model->save();
+ *              },
+ *              'deleteRelation' => false,
+ *              'createRelation' => false,
+ *              'enable' => function (\yii\base\Event $event) {
+ *                  return true;
+ *              },
  *              'attributes' => [
  *                  // Observe the change in the `status` attribute
  *                  // Writes the "value" in field `status` the relation model
@@ -57,6 +66,14 @@ class PushBehavior extends Behavior
 {
     use WatchAttributesTrait;
 
+    /**
+     * @var bool|\Closure
+     * Can be passed to \Closure for enable or disable Behavior
+     * function (\yii\base\Event $event) {
+     *      return true;
+     * }
+     */
+    public $enable = true;
     /**
      * @var string target relation name
      */
@@ -106,9 +123,14 @@ class PushBehavior extends Behavior
 
     /**
      * Insert related model
+     * @param AfterSaveEvent $event
      */
-    final public function afterInsert()
+    final public function afterInsert(AfterSaveEvent $event)
     {
+        if ($this->isEnable($event) === false) {
+            return;
+        }
+
         foreach ($this->getRelationIterator() as $model) {
             if (null === $model) {
                 if (false === $this->createRelation) {
@@ -135,6 +157,10 @@ class PushBehavior extends Behavior
      */
     final public function afterUpdate(AfterSaveEvent $event)
     {
+        if ($this->isEnable($event) === false) {
+            return;
+        }
+
         if ($changedAttributes = $this->getChangedAttributes($event->changedAttributes)) {
             foreach ($this->getRelationIterator(true) as $model) {
                 $this->updateModel($model, $changedAttributes);
@@ -148,11 +174,16 @@ class PushBehavior extends Behavior
     }
 
     /**
+     * @param ModelEvent $event
      * @throws \Exception
      * @throws \Throwable
      */
-    final public function beforeDelete()
+    final public function beforeDelete(ModelEvent $event)
     {
+        if ($this->isEnable($event) === false) {
+            return;
+        }
+
         foreach ($this->getRelationIterator(true) as $model) {
             if (true === $this->deleteRelation) {
                 $model->delete();
@@ -193,5 +224,17 @@ class PushBehavior extends Behavior
                 yield $item;
             }
         }
+    }
+
+    /**
+     * @param $event
+     * @return bool
+     */
+    protected function isEnable($event)
+    {
+        if (is_bool($this->enable)) {
+            return $this->enable;
+        }
+        return (bool)call_user_func($this->enable, $event);
     }
 }
