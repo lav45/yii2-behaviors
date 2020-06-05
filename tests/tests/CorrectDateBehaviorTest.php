@@ -50,7 +50,7 @@ class CorrectDateBehaviorTest extends TestCase
 
     public function testSetCustomTimeZone()
     {
-        Yii::$app->timeZone = 'Europe/Minsk';
+        Yii::$app->formatter->timeZone = 'Europe/Minsk';
 
         $model = new CorrectDateModel();
         $model->dateFrom = '13.03.2018 01:35';

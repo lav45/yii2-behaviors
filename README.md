@@ -38,7 +38,7 @@ in ```require``` section in `composer.json` file.
 # Testing
 
 ```
-~$ docker build --pull --rm -t php74-test .
+~$ docker build --pull --build-arg UID=$(id -u) --build-arg GID=$(id -g) --rm -t php74-test .
 ~$ ./container composer update --prefer-dist
 ~$ ./container vendor/bin/phpunit
 ```

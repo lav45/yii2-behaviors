@@ -2,6 +2,6 @@
 
 docker run --rm --interactive --tty \
   -u $(id -u):$(id -g) \
-  -v $PWD:/app \
-  -w /app \
+  -v $PWD:/var/www \
+  -w /var/www \
   php74-test $@
