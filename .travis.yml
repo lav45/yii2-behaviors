@@ -1,4 +1,6 @@
 language: php
+dist: trusty
+sudo: false
 
 matrix:
   fast_finish: true

@@ -41,22 +41,12 @@ class UserEmail extends ActiveRecord
                 'enable' => function () {
                     return $this->enable;
                 },
-                'deleteRelation' => [$this, 'deleteRelation'],
                 'createRelation' => false,
                 'attributes' => [
                     'email' => 'email'
                 ]
             ]
         ];
-    }
-
-    /**
-     * @param ApiUser $model
-     */
-    public function deleteRelation(ApiUser $model)
-    {
-        $model->email = null;
-        $model->save(false);
     }
 
     /**

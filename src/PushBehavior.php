@@ -18,7 +18,7 @@ use yii\db\AfterSaveEvent;
  *          [
  *              'class' => PushBehavior::class,
  *              'relation' => 'apiUser',
- *              'enable' => static function () {
+ *              'enable' => function () {
  *                  return true;
  *              },
  *              'attributes' => [
