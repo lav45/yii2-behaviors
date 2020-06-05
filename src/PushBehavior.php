@@ -4,6 +4,7 @@ namespace lav45\behaviors;
 
 use lav45\behaviors\traits\WatchAttributesTrait;
 use yii\base\Behavior;
+use yii\base\ModelEvent;
 use yii\db\ActiveRecord;
 use yii\db\ActiveRecordInterface;
 use yii\db\AfterSaveEvent;
@@ -18,7 +19,12 @@ use yii\db\AfterSaveEvent;
  *          [
  *              'class' => PushBehavior::class,
  *              'relation' => 'apiUser',
- *              'enable' => function () {
+ *              'updateRelation' => function (ActiveRecord $model) {
+ *                  $model->save();
+ *              },
+ *              'deleteRelation' => false,
+ *              'createRelation' => false,
+ *              'enable' => function (\yii\base\Event $event) {
  *                  return true;
  *              },
  *              'attributes' => [
@@ -63,12 +69,11 @@ class PushBehavior extends Behavior
     /**
      * @var bool|\Closure
      * Can be passed to \Closure for enable or disable Behavior
-     * function () {
+     * function (\yii\base\Event $event) {
      *      return true;
      * }
      */
     public $enable = true;
-
     /**
      * @var string target relation name
      */
@@ -118,10 +123,11 @@ class PushBehavior extends Behavior
 
     /**
      * Insert related model
+     * @param AfterSaveEvent $event
      */
-    final public function afterInsert()
+    final public function afterInsert(AfterSaveEvent $event)
     {
-        if ($this->isEnable() === false) {
+        if ($this->isEnable($event) === false) {
             return;
         }
 
@@ -151,7 +157,7 @@ class PushBehavior extends Behavior
      */
     final public function afterUpdate(AfterSaveEvent $event)
     {
-        if ($this->isEnable() === false) {
+        if ($this->isEnable($event) === false) {
             return;
         }
 
@@ -168,12 +174,13 @@ class PushBehavior extends Behavior
     }
 
     /**
+     * @param ModelEvent $event
      * @throws \Exception
      * @throws \Throwable
      */
-    final public function beforeDelete()
+    final public function beforeDelete(ModelEvent $event)
     {
-        if ($this->isEnable() === false) {
+        if ($this->isEnable($event) === false) {
             return;
         }
 
@@ -220,13 +227,14 @@ class PushBehavior extends Behavior
     }
 
     /**
+     * @param $event
      * @return bool
      */
-    protected function isEnable()
+    protected function isEnable($event)
     {
         if (is_bool($this->enable)) {
             return $this->enable;
         }
-        return (bool)call_user_func($this->enable);
+        return (bool)call_user_func($this->enable, $event);
     }
 }
