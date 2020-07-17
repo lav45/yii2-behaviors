@@ -2,7 +2,7 @@
 
 namespace lav45\behaviors;
 
-use Yii;
+use Exception;
 use yii\di\Instance;
 use yii\i18n\Formatter;
 
@@ -27,22 +27,17 @@ use yii\i18n\Formatter;
  *          ]
  *      ];
  *  }
- *
  */
 class CorrectDateBehavior extends AttributeBehavior
 {
-    /**
-     * @inheritdoc
-     */
+    /** @var array flip target attributes */
     public $attributes;
-    /**
-     * @var string|array|Formatter
-     */
+    /** @var string|array|Formatter */
     public $formatter = 'formatter';
-    /**
-     * @var string
-     */
+    /** @var string */
     public $format = 'datetime';
+    /** @var bool */
+    public $throwException = false;
 
     /**
      * @return Formatter
@@ -73,11 +68,27 @@ class CorrectDateBehavior extends AttributeBehavior
      */
     public function setAttribute($name, $value)
     {
+        $this->owner->{$this->attributes[$name]} = $this->format($value);
+    }
+
+    /**
+     * @param string $value
+     * @return int|null
+     * @throws Exception
+     */
+    protected function format($value)
+    {
         if (empty($value)) {
-            $this->owner->{$this->attributes[$name]} = null;
-        } else {
+            return null;
+        }
+        try {
             $formatter = $this->getFormatter();
-            $this->owner->{$this->attributes[$name]} = $formatter->asTimestamp($value . ' ' . $formatter->timeZone);
+            return $formatter->asTimestamp($value . ' ' . $formatter->timeZone);
+        } catch (Exception $e) {
+            if ($this->throwException) {
+                throw $e;
+            }
+            return null;
         }
     }
 }
