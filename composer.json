@@ -26,19 +26,31 @@
         "yiisoft/yii2": "2.0.*"
     },
     "require-dev": {
+        "cweagans/composer-patches": "^1.7",
         "roave/security-advisories": "dev-master",
-        "phpunit/phpunit": "4.8 - 7.5",
+        "phpunit/phpunit": "4.8.34",
         "ext-sqlite3": "*"
     },
     "autoload": {
         "psr-4": {
-            "lav45\\behaviors\\": "src",
+            "lav45\\behaviors\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "lav45\\behaviors\\tests\\": "tests"
         }
     },
     "extra": {
         "branch-alias": {
             "dev-master": "0.6.x-dev"
+        },
+        "composer-exit-on-patch-failure": true,
+        "patches": {
+            "phpunit/phpunit": {
+                "Fix PHP 7 compatibility": "https://yiisoft.github.io/phpunit-patches/phpunit_php7.patch",
+                "Fix PHP 8 compatibility": "https://yiisoft.github.io/phpunit-patches/phpunit_php8.patch"
+            }
         }
     }
 }

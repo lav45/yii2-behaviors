@@ -3,7 +3,7 @@
 [![Latest Stable Version](https://poser.pugx.org/lav45/yii2-behaviors/v/stable)](https://packagist.org/packages/lav45/yii2-behaviors)
 [![License](https://poser.pugx.org/lav45/yii2-behaviors/license)](https://packagist.org/packages/lav45/yii2-behaviors)
 [![Total Downloads](https://poser.pugx.org/lav45/yii2-behaviors/downloads)](https://packagist.org/packages/lav45/yii2-behaviors)
-[![Build Status](https://travis-ci.org/lav45/yii2-behaviors.svg?branch=master)](https://travis-ci.org/lav45/yii2-behaviors)
+[![Build Status](https://github.com/lav45/yii2-behaviors/workflows/build/badge.svg)](https://github.com/lav45/yii2-behaviors/actions)
 
 This is a set of small Yii2 behaviors extensions.
 
