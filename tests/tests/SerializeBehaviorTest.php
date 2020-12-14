@@ -37,7 +37,12 @@ class SerializeBehaviorTest extends TestCase
         $this->assertEquals($model->description, $data['description']);
         $this->assertEquals($model->meta, $data['meta']);
         $this->assertEquals($model->is_active, $data['is_active']);
-        $this->assertEquals($model->_data, json_encode($data, 320));
+
+        $_data = $data;
+        $_data['meta_keywords'] = $data['meta']['keywords'];
+        $_data = json_encode($_data, 320);
+
+        $this->assertEquals($model->_data, $_data);
     }
 
     public function testUpdate()
@@ -91,7 +96,7 @@ class SerializeBehaviorTest extends TestCase
         $model->save(false);
 
         $this->assertEquals($model->is_active, null);
-        $this->assertEquals($model->_data, '{"is_active":null}');
+        $this->assertEquals($model->_data, '{"meta_keywords":null,"is_active":null}');
     }
 
     public function testIsset()
@@ -101,5 +106,15 @@ class SerializeBehaviorTest extends TestCase
         $this->assertTrue(isset($model->defaultValue));
         unset($model->defaultValue);
         $this->assertFalse(isset($model->defaultValue));
+    }
+
+    public function testDoableSetStorageAttribute()
+    {
+        $data = $this->getDefaultData();
+        $model = new News($data);
+
+        $model->save(false);
+
+        $this->assertEquals($model->meta_keywords, $data['meta']['keywords']);
     }
 }

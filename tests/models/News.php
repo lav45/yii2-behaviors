@@ -2,6 +2,7 @@
 
 namespace lav45\behaviors\tests\models;
 
+use yii\behaviors\AttributeBehavior;
 use yii\db\ActiveRecord;
 use lav45\behaviors\VirtualAttributesTrait;
 use lav45\behaviors\SerializeProxyBehavior;
@@ -21,6 +22,7 @@ use lav45\behaviors\SerializeBehavior;
  * ---------------------------
  * @property string $description
  * @property array $meta
+ * @property string $meta_keywords
  * @property bool $is_active
  * @property int $defaultValue
  * @property int $defaultFunc
@@ -44,6 +46,7 @@ class News extends ActiveRecord
                         'keywords' => null,
                         'description' => null,
                     ],
+                    'meta_keywords',
                     'is_active' => true,
                     'defaultValue' => 1,
                     'defaultFunc' => function() {
@@ -57,6 +60,16 @@ class News extends ActiveRecord
                     'tags' => '_tags',
                     'options' => '_options',
                 ]
+            ],
+            [
+                'class' => AttributeBehavior::class,
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => 'meta_keywords',
+                    ActiveRecord::EVENT_BEFORE_UPDATE => 'meta_keywords',
+                ],
+                'value' => function () {
+                    return $this->meta['keywords'];
+                }
             ]
         ];
     }

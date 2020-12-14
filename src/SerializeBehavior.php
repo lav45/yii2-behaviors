@@ -25,6 +25,10 @@ class SerializeBehavior extends AttributeBehavior implements AttributeChangeInte
      * @var string field in the database in which all data will be stored
      */
     public $storageAttribute;
+    /**
+     * @var bool
+     */
+    private $changeStorageAttribute = false;
 
     /**
      * @inheritdoc
@@ -50,12 +54,14 @@ class SerializeBehavior extends AttributeBehavior implements AttributeChangeInte
     {
         if ($this->data !== $this->oldData) {
             $this->owner[$this->storageAttribute] = $this->encode($this->data);
+            $this->changeStorageAttribute = true;
         }
     }
 
     public function afterSave()
     {
         $this->oldData = $this->data;
+        $this->changeStorageAttribute = false;
     }
 
     /**
@@ -98,5 +104,8 @@ class SerializeBehavior extends AttributeBehavior implements AttributeChangeInte
     public function setAttribute($name, $value)
     {
         $this->data[$name] = $value;
+        if ($this->changeStorageAttribute === true) {
+            $this->beforeSave();
+        }
     }
 }
