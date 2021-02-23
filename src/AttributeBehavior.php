@@ -18,18 +18,6 @@ abstract class AttributeBehavior extends Behavior implements AttributeInterface
 
     /**
      * @param string $name
-     * @return mixed
-     */
-    abstract public function getAttribute($name);
-
-    /**
-     * @param string $name
-     * @param mixed $value
-     */
-    abstract public function setAttribute($name, $value);
-
-    /**
-     * @param string $name
      * @return bool
      */
     public function hasAttribute($name)

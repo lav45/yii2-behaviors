@@ -4,7 +4,6 @@ namespace lav45\behaviors;
 
 use yii\db\ActiveRecord;
 use lav45\behaviors\contracts\AttributeChangeInterface;
-use lav45\behaviors\contracts\OldAttributeInterface;
 use lav45\behaviors\traits\ChangeAttributesTrait;
 use lav45\behaviors\traits\SerializeTrait;
 
@@ -15,7 +14,7 @@ use lav45\behaviors\traits\SerializeTrait;
  * @property ActiveRecord $owner
  * @property-write array $attributes
  */
-class SerializeProxyBehavior extends AttributeBehavior implements AttributeChangeInterface, OldAttributeInterface
+class SerializeProxyBehavior extends AttributeBehavior implements AttributeChangeInterface
 {
     use SerializeTrait;
 

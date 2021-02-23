@@ -2,7 +2,11 @@
 
 namespace lav45\behaviors\contracts;
 
-interface AttributeChangeInterface
+/**
+ * Interface AttributeChangeInterface
+ * @package lav45\behaviors\contracts
+ */
+interface AttributeChangeInterface extends AttributeInterface
 {
     /**
      * @param string $name
@@ -10,4 +14,10 @@ interface AttributeChangeInterface
      * @return bool
      */
     public function isAttributeChanged($name, $identical = true);
+
+    /**
+     * @param string $name
+     * @return mixed
+     */
+    public function getOldAttribute($name);
 }

@@ -5,7 +5,6 @@ namespace lav45\behaviors;
 use Closure;
 use yii\db\ActiveRecord;
 use lav45\behaviors\contracts\AttributeChangeInterface;
-use lav45\behaviors\contracts\OldAttributeInterface;
 use lav45\behaviors\traits\ChangeAttributesTrait;
 use lav45\behaviors\traits\SerializeTrait;
 
@@ -15,7 +14,7 @@ use lav45\behaviors\traits\SerializeTrait;
  *
  * @property-write array $attributes
  */
-class SerializeBehavior extends AttributeBehavior implements AttributeChangeInterface, OldAttributeInterface
+class SerializeBehavior extends AttributeBehavior implements AttributeChangeInterface
 {
     use SerializeTrait;
 
@@ -69,6 +68,7 @@ class SerializeBehavior extends AttributeBehavior implements AttributeChangeInte
      */
     public function setAttributes(array $data)
     {
+        $this->attributes = [];
         foreach ($data as $key => $value) {
             if (is_int($key)) {
                 $this->attributes[$value] = null;
@@ -90,7 +90,7 @@ class SerializeBehavior extends AttributeBehavior implements AttributeChangeInte
 
         $value = $this->attributes[$name];
 
-        if ($value instanceof Closure) {
+        if ($value instanceof Closure || (is_array($value) && is_callable($value))) {
             return $value();
         }
 

@@ -4,6 +4,7 @@ namespace lav45\behaviors;
 
 use lav45\behaviors\traits\WatchAttributesTrait;
 use yii\base\Behavior;
+use yii\base\InvalidConfigException;
 use yii\base\ModelEvent;
 use yii\db\ActiveRecord;
 use yii\db\ActiveRecordInterface;
@@ -209,6 +210,10 @@ class PushBehavior extends Behavior
     private function getRelationIterator($skip_empty = false)
     {
         $relation = $this->owner->getRelation($this->relation);
+
+        if ($relation === null) {
+            throw new InvalidConfigException("Relation '{$this->relation}' not found.");
+        }
 
         if (true === $relation->multiple) {
             foreach ($relation->each() as $item) {

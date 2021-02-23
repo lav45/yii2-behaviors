@@ -3,7 +3,6 @@
 namespace lav45\behaviors;
 
 use lav45\behaviors\contracts\AttributeChangeInterface;
-use lav45\behaviors\contracts\OldAttributeInterface;
 use lav45\behaviors\contracts\AttributeInterface;
 
 /**
@@ -14,15 +13,14 @@ trait VirtualAttributesTrait
 {
     /**
      * @param string $name
-     * @param string $type the class/interface
+     * @param string $type the interface class
      * @return \yii\base\Behavior|AttributeInterface|boolean
      */
-    public function hasVirtualAttribute($name, $type = null)
+    public function hasVirtualAttribute($name, $type)
     {
         foreach ($this->getBehaviors() as $behavior) {
             if (
-                (null === $type || $behavior instanceof $type) &&
-                $behavior instanceof AttributeInterface &&
+                $behavior instanceof $type &&
                 $behavior->hasAttribute($name)
             ) {
                 return $behavior;
@@ -45,7 +43,7 @@ trait VirtualAttributesTrait
             return parent::getAttribute($name);
         }
 
-        if ($behavior = $this->hasVirtualAttribute($name)) {
+        if ($behavior = $this->hasVirtualAttribute($name, AttributeInterface::class)) {
             return $behavior->getAttribute($name);
         }
 
@@ -67,8 +65,8 @@ trait VirtualAttributesTrait
             return parent::getOldAttribute($name);
         }
 
-        /** @var OldAttributeInterface $behavior */
-        if ($behavior = $this->hasVirtualAttribute($name, OldAttributeInterface::class)) {
+        /** @var AttributeChangeInterface $behavior */
+        if ($behavior = $this->hasVirtualAttribute($name, AttributeChangeInterface::class)) {
             return $behavior->getOldAttribute($name);
         }
 

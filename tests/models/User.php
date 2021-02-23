@@ -23,7 +23,7 @@ use lav45\behaviors\PushBehavior;
  * @property Company $company
  * @property UserProfile $profile
  * @property UserEmail $email
- * @property UserPhone $phones
+ * @property UserPhone[] $phones
  */
 class User extends ActiveRecord
 {

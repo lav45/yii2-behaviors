@@ -2,6 +2,10 @@
 
 namespace lav45\behaviors\contracts;
 
+/**
+ * Interface AttributeInterface
+ * @package lav45\behaviors\contracts
+ */
 interface AttributeInterface
 {
     /**
@@ -15,4 +19,10 @@ interface AttributeInterface
      * @return mixed
      */
     public function getAttribute($name);
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     */
+    public function setAttribute($name, $value);
 }
