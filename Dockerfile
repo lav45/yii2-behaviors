@@ -1,23 +1,36 @@
-FROM phpdockerio/php74-cli:latest
+FROM alpine:3.14
+
+RUN apk update --no-cache
+RUN apk upgrade --update-cache --available
 
 ARG UID
 ARG GID
 
-RUN usermod --non-unique --uid ${UID} www-data
+RUN apk add shadow
+RUN adduser -S -G www-data -u ${UID} -h /var/www -s /bin/sh www-data
 RUN groupmod --non-unique --gid ${GID} www-data
 
-RUN apt-get update
-RUN apt-get upgrade -y
-RUN apt-get install -y apt-utils
+# php
+RUN apk add php8
 
-# php extension
-RUN apt-get install -y php-memcached php-sqlite3 sqlite3
+# php cli
+RUN ln -s /usr/bin/php8 /usr/bin/php
 
 # composer
-RUN apt-get install -y git
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN apk add git
+RUN apk add php8-phar
+RUN apk add php8-openssl openssl
+RUN apk add php8-iconv
+RUN wget https://getcomposer.org/installer -O - | php -- --with-openssl --install-dir=/usr/local/bin --filename=composer
+
+# php extension
+RUN apk add php8-ctype
+RUN apk add php8-intl
+RUN apk add php8-mbstring
+RUN apk add php8-opcache
+RUN apk add php8-pdo_sqlite sqlite
+RUN apk add php8-dom
+RUN apk add php8-tokenizer
 
 # clean
-RUN rm -rf /var/lib/apt/lists/*
-RUN apt-get autoremove -y
-RUN apt-get clean
+RUN rm -rf /var/cache/apk/* /tmp/*
