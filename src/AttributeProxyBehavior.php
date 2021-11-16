@@ -15,21 +15,11 @@ use yii\db\ActiveRecord;
  */
 class AttributeProxyBehavior extends AttributeBehavior implements AttributeChangeInterface
 {
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $createRelation = true;
-    /**
-     * @var array
-     */
+    /** @var array */
     public $createExtraColumns = [];
-    /**
-     * @var bool
-     */
-    public $deleteRelation = true;
-    /**
-     * @var array
-     */
+    /** @var array */
     private $changeRelation = [];
 
     /**
@@ -47,8 +37,6 @@ class AttributeProxyBehavior extends AttributeBehavior implements AttributeChang
     /**
      * @param array $data [
      *     'virtual_attribute' => 'relation.attribute',
-     *     'birthday' => 'profile.birthday',
-     *     'user_email' => 'profile.email',
      * ]
      */
     public function setAttributes(array $data)
@@ -84,20 +72,53 @@ class AttributeProxyBehavior extends AttributeBehavior implements AttributeChang
     final public function beforeDelete()
     {
         $deleted = [];
-        foreach ($this->attributes as $attribute) {
-            $relation = $attribute[0];
-            if (isset($deleted[$relation])) {
-                continue;
-            }
-            $deleted[$relation] = true;
-            $model = $this->getRelationModel($relation);
+        foreach (array_keys($this->attributes) as $name) {
+            /** @var ActiveRecord $model */
+            list($model, $attribute, $relation) = $this->getTargetAttribute($name, false);
             if ($model === null) {
                 continue;
             }
-            if ($model->getIsNewRecord() === false) {
-                $this->owner->unlink($relation, $model, $this->deleteRelation);
+            if (isset($deleted[$relation])) {
+                continue;
             }
+            if (method_exists($model, 'getTableSchema') === false) {
+                continue;
+            }
+
+            $deleted[$relation] = $model;
+
+            $model->{$attribute} = $model::getTableSchema()->columns[$attribute]->defaultValue;
         }
+        /** @var ActiveRecord $model */
+        foreach ($deleted as $model) {
+            $model->save(false);
+        }
+    }
+
+    /**
+     * @param string $name
+     * @param bool $createRelation
+     * @return array
+     * @throws InvalidConfigException
+     */
+    private function getTargetAttribute($name, $createRelation = true)
+    {
+        if (empty($this->attributes[$name])) {
+            return [];
+        }
+
+        list($relation, $attribute) = $this->attributes[$name];
+
+        $model = $this->getRelationModel($relation, $createRelation);
+        if ($model === null) {
+            return [];
+        }
+
+        return [
+            $model,
+            $attribute,
+            $relation,
+        ];
     }
 
     /**
@@ -106,8 +127,8 @@ class AttributeProxyBehavior extends AttributeBehavior implements AttributeChang
      */
     public function getAttribute($name)
     {
-        list($relation, $attribute) = $this->attributes[$name];
-        $model = $this->getRelationModel($relation);
+        /** @var ActiveRecord $model */
+        list($model, $attribute) = $this->getTargetAttribute($name);
         if ($model === null) {
             return null;
         }
@@ -120,8 +141,8 @@ class AttributeProxyBehavior extends AttributeBehavior implements AttributeChang
      */
     public function setAttribute($name, $value)
     {
-        list($relation, $attribute) = $this->attributes[$name];
-        $model = $this->getRelationModel($relation);
+        /** @var ActiveRecord $model */
+        list($model, $attribute, $relation) = $this->getTargetAttribute($name);
         if ($model === null) {
             return;
         }
@@ -136,8 +157,8 @@ class AttributeProxyBehavior extends AttributeBehavior implements AttributeChang
      */
     public function isAttributeChanged($name, $identical = true)
     {
-        list($relation, $attribute) = $this->attributes[$name];
-        $model = $this->getRelationModel($relation);
+        /** @var ActiveRecord $model */
+        list($model, $attribute) = $this->getTargetAttribute($name);
         if ($model === null) {
             return false;
         }
@@ -150,8 +171,8 @@ class AttributeProxyBehavior extends AttributeBehavior implements AttributeChang
      */
     public function getOldAttribute($name)
     {
-        list($relation, $attribute) = $this->attributes[$name];
-        $model = $this->getRelationModel($relation);
+        /** @var ActiveRecord $model */
+        list($model, $attribute) = $this->getTargetAttribute($name);
         if ($model === null) {
             return false;
         }
@@ -160,10 +181,11 @@ class AttributeProxyBehavior extends AttributeBehavior implements AttributeChang
 
     /**
      * @param string $relation
+     * @param bool $createRelation
      * @return ActiveRecord|null
      * @throws InvalidConfigException
      */
-    protected function getRelationModel($relation)
+    protected function getRelationModel($relation, $createRelation = true)
     {
         if ($this->owner->isRelationPopulated($relation)) {
             return $this->owner->__get($relation);
@@ -182,7 +204,7 @@ class AttributeProxyBehavior extends AttributeBehavior implements AttributeChang
         /** @var ActiveRecord $model */
         $model = $query->one();
 
-        if ($model === null && $this->createRelation === true) {
+        if ($model === null && $createRelation && $this->createRelation) {
             $class = $query->modelClass;
             /** @var ActiveRecord $model */
             $model = new $class;

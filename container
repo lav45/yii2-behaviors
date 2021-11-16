@@ -4,4 +4,4 @@ docker run --rm --interactive --tty \
   -u $(id -u):$(id -g) \
   -v $PWD:/var/www \
   -w /var/www \
-  php74-cli $@
+  php8-cli $@

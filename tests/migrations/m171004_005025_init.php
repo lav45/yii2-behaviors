@@ -32,6 +32,7 @@ class m171004_005025_init extends Migration
         $this->createTable('user_profile', [
             'user_id' => $this->primaryKey(),
             'birthday' => $this->integer(),
+            'wake_up' => $this->string()->defaultValue('7:00')
         ]);
 
         // hasOne

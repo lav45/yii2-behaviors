@@ -19,6 +19,10 @@ use lav45\behaviors\PushBehavior;
  * @property int $last_login
  * @property int $company_id
  *
+ * proxy from UserProfile
+ * @property int $birthday
+ * @property string $wake_up
+ *
  * @property ApiUser $apiUser
  * @property Company $company
  * @property UserProfile $profile

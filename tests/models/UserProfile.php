@@ -11,8 +11,10 @@ use lav45\behaviors\PushBehavior;
  *
  * @property int $user_id
  * @property int $birthday
+ * @property string $wake_up
  *
  * @property User $user
+ * @property ApiUser $apiUser
  */
 class UserProfile extends ActiveRecord
 {
