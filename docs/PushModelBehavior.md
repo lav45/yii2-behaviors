@@ -75,12 +75,6 @@ class TargetModel extends \yii\base\Model
 
     public function save()
     {
-        // If all data has been verified
-        if (!$this->validate()) {
-            return;
-        }
-    
-        // For example, you can send data through the Rest API
         Yii::$app->httpClient
             ->post(['user', 'id' => $this->id], ['email' => $this->email])
             ->send();
@@ -88,10 +82,6 @@ class TargetModel extends \yii\base\Model
 
     public function delete()
     {
-        if (!$this->validate()) {
-            return;
-        }
-
         Yii::$app->httpClient
             ->delete(['user', 'id' => $this->id])
             ->send();
