@@ -110,8 +110,11 @@ class PushBehavior extends Behavior
      */
     public function events()
     {
-        $events = [ActiveRecord::EVENT_AFTER_INSERT => 'afterInsert'];
+        $events = [];
 
+        if (false !== $this->createRelation || false !== $this->updateRelation) {
+            $events[ActiveRecord::EVENT_AFTER_INSERT] = 'afterInsert';
+        }
         if (false !== $this->updateRelation) {
             $events[ActiveRecord::EVENT_AFTER_UPDATE] = 'afterUpdate';
         }
