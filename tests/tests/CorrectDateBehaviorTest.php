@@ -92,7 +92,12 @@ class CorrectDateBehaviorTest extends TestCase
         $correctDate->throwException = true;
 
         $this->expectException('yii\base\InvalidArgumentException');
-        $this->expectExceptionMessageRegExp('/is not a valid date time value: DateTime::__construct\(\): Failed to parse time string/i');
+
+        if (PHP_VERSION_ID >= 80100) {
+            $this->expectExceptionMessageRegExp('/is not a valid date time value: Failed to parse time string/i');
+        } else {
+            $this->expectExceptionMessageRegExp('/is not a valid date time value: DateTime::__construct\(\): Failed to parse time string/i');
+        }
 
         $model->dateFrom = '13.03.____';
     }
