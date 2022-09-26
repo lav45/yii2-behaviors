@@ -2,6 +2,7 @@
 
 namespace lav45\behaviors\tests\tests;
 
+use lav45\behaviors\PushBehavior;
 use lav45\behaviors\tests\models\UserEmail;
 use Yii;
 use lav45\behaviors\tests\models\User;
@@ -277,6 +278,33 @@ class PushBehaviorTest extends TestCase
             ApiUser::tableName(),
             UserEmail::tableName(),
         ]);
+    }
+
+    public function testUpdateRelationAfterInsert()
+    {
+        $model = new UserEmail();
+
+        $work = false;
+
+        /** @var PushBehavior $pushBehavior */
+        $pushBehavior = $model->getBehavior('push');
+        $pushBehavior->enable = function () use (&$work) {
+            $work = true;
+        };
+
+        $model->email = 'test-1@test.com';
+        $model->user_id = 10;
+        $model->save(false);
+
+        $this->assertTrue($work);
+
+        $work = false;
+        $model->setIsNewRecord(true);
+        $pushBehavior->updateRelationAfterInsert = false;
+        $pushBehavior->enable = function () use (&$work) {
+            $work = true;
+        };
+        $this->assertFalse($work);
     }
 
     /**

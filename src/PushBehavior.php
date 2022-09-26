@@ -6,9 +6,9 @@ use lav45\behaviors\traits\WatchAttributesTrait;
 use yii\base\Behavior;
 use yii\base\InvalidConfigException;
 use yii\base\ModelEvent;
-use yii\db\ActiveRecord;
 use yii\db\ActiveRecordInterface;
 use yii\db\AfterSaveEvent;
+use yii\db\BaseActiveRecord;
 
 /**
  * Class PushBehavior
@@ -61,7 +61,7 @@ use yii\db\AfterSaveEvent;
  * }
  *
  * @package lav45\behaviors
- * @property ActiveRecord $owner
+ * @property BaseActiveRecord $owner
  */
 class PushBehavior extends Behavior
 {
@@ -88,6 +88,11 @@ class PushBehavior extends Behavior
      */
     public $updateRelation = true;
     /**
+     * @var bool update relation models after insert owner model
+     * default value [[createRelation]] !== false
+     */
+    public $updateRelationAfterInsert;
+    /**
      * @var bool|\Closure whether to delete related models
      * Can be passed to \Closure then the user will be able to decide how to unlink the link to the linked model
      * function (ActiveRecord $model) {
@@ -112,14 +117,18 @@ class PushBehavior extends Behavior
     {
         $events = [];
 
-        if (false !== $this->createRelation || false !== $this->updateRelation) {
-            $events[ActiveRecord::EVENT_AFTER_INSERT] = 'afterInsert';
+        if ($this->updateRelationAfterInsert === null) {
+            $this->updateRelationAfterInsert = false !== $this->createRelation;
+        }
+
+        if (false !== $this->createRelation || true === $this->updateRelationAfterInsert) {
+            $events[BaseActiveRecord::EVENT_AFTER_INSERT] = 'afterInsert';
         }
         if (false !== $this->updateRelation) {
-            $events[ActiveRecord::EVENT_AFTER_UPDATE] = 'afterUpdate';
+            $events[BaseActiveRecord::EVENT_AFTER_UPDATE] = 'afterUpdate';
         }
         if (false !== $this->deleteRelation) {
-            $events[ActiveRecord::EVENT_BEFORE_DELETE] = 'beforeDelete';
+            $events[BaseActiveRecord::EVENT_BEFORE_DELETE] = 'beforeDelete';
         }
 
         return $events;
@@ -131,7 +140,7 @@ class PushBehavior extends Behavior
      */
     final public function afterInsert(AfterSaveEvent $event)
     {
-        if ($this->isEnable($event) === false) {
+        if (false === $this->updateRelationAfterInsert || $this->isEnable($event) === false) {
             return;
         }
 

@@ -42,6 +42,7 @@ class UserEmail extends ActiveRecord
                     return $this->enable;
                 },
                 'createRelation' => false,
+                'updateRelationAfterInsert' => true,
                 'attributes' => [
                     'email' => 'email'
                 ]

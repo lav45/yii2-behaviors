@@ -37,6 +37,7 @@ class UserProfile extends ActiveRecord
                 'relation' => 'apiUser',
                 'deleteRelation' => [$this, 'deleteRelation'],
                 'createRelation' => false,
+                'updateRelationAfterInsert' => true,
                 'attributes' => [
                     'birthday' => 'birthday'
                 ]
