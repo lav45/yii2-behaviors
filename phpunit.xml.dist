@@ -12,15 +12,12 @@
     stopOnFailure="false">
     <testsuites>
         <testsuite name="Target Test Suite">
-            <directory>tests/tests</directory>
+            <directory>tests/units</directory>
         </testsuite>
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">src</directory>
-            <exclude>
-                <directory>src/.draft</directory>
-            </exclude>
         </whitelist>
     </filter>
 </phpunit>

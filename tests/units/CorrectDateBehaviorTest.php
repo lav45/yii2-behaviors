@@ -1,6 +1,6 @@
 <?php
 
-namespace lav45\behaviors\tests\tests;
+namespace lav45\behaviors\tests\units;
 
 use lav45\behaviors\CorrectDateBehavior;
 use lav45\behaviors\tests\models\CorrectDateModel;

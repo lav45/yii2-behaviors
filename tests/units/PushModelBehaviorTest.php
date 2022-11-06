@@ -1,6 +1,6 @@
 <?php
 
-namespace lav45\behaviors\tests\tests;
+namespace lav45\behaviors\tests\units;
 
 use Yii;
 use lav45\behaviors\tests\models\PushModel;
