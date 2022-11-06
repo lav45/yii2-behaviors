@@ -4,6 +4,7 @@ namespace lav45\behaviors\tests\units;
 
 use lav45\behaviors\tests\models\News;
 use PHPUnit\Framework\TestCase;
+use yii\db\AfterSaveEvent;
 
 class SerializeBehaviorTest extends TestCase
 {
@@ -72,6 +73,20 @@ class SerializeBehaviorTest extends TestCase
         $this->assertEquals($model->getAttribute('not_fount_attribute'), null);
         $this->assertEquals($model->getOldAttribute('not_fount_attribute'), null);
         $this->assertFalse($model->isAttributeChanged('not_fount_attribute'));
+    }
+
+    public function testUpdateChangedAttributes()
+    {
+        $data = $this->getDefaultData();
+        $model = new News($data);
+        $model->title = 'set title';
+
+        $model->on(News::EVENT_AFTER_INSERT, function (AfterSaveEvent $event) {
+            $this->assertArrayHasKey('title', $event->changedAttributes);
+            $this->assertNull($event->changedAttributes['title']);
+        });
+
+        $model->save(false);
     }
 
     public function testGetDefaultValue()
