@@ -41,4 +41,14 @@ trait ChangeAttributesTrait
     {
         return isset($this->oldData[$name]) || array_key_exists($name, $this->oldData) ? $this->oldData[$name] : null;
     }
+
+    /**
+     * Sets the old value of the named attribute.
+     * @param string $name the attribute name
+     * @param mixed $value the old attribute value.
+     */
+    public function setOldAttribute($name, $value)
+    {
+        $this->oldData[$name] = $value;
+    }
 }

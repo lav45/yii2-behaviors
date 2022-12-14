@@ -20,4 +20,10 @@ interface AttributeChangeInterface extends AttributeInterface
      * @return mixed
      */
     public function getOldAttribute($name);
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     */
+    public function setOldAttribute($name, $value);
 }
