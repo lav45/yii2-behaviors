@@ -25,7 +25,7 @@ class UserEmail extends ActiveRecord
     public function transactions()
     {
         return [
-            ActiveRecord::SCENARIO_DEFAULT => ActiveRecord::OP_ALL,
+            self::SCENARIO_DEFAULT => self::OP_ALL,
         ];
     }
 
