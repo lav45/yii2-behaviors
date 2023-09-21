@@ -56,7 +56,8 @@ class CorrectDateBehavior extends AttributeBehavior
      */
     public function getAttribute($name)
     {
-        if ($value = $this->owner->{$this->attributes[$name]}) {
+        $value = $this->owner->{$this->attributes[$name]};
+        if (is_numeric($value)) {
             return $this->getFormatter()->format($value, $this->format);
         }
         return null;
