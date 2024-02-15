@@ -38,6 +38,8 @@ class CorrectDateBehavior extends AttributeBehavior
     public $format = 'datetime';
     /** @var bool */
     public $throwException = false;
+    /** @var \Closure|array */
+    public $beforeSetAttribute;
 
     /**
      * @return Formatter
@@ -64,12 +66,25 @@ class CorrectDateBehavior extends AttributeBehavior
     }
 
     /**
-     * @param string|null $name
+     * @param string $name
      * @param string $value
      */
     public function setAttribute($name, $value)
     {
+        $value = $this->beforeSetAttribute($name, $value);
         $this->owner->{$this->attributes[$name]} = $this->format($value);
+    }
+
+    /**
+     * @param string $name
+     * @param string $value
+     */
+    protected function beforeSetAttribute($name, $value)
+    {
+        if ($this->beforeSetAttribute === null) {
+            return $value;
+        }
+        return call_user_func($this->beforeSetAttribute, $name, $value);
     }
 
     /**
