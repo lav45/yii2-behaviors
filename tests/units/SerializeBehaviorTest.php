@@ -13,11 +13,11 @@ class SerializeBehaviorTest extends TestCase
         return [
             'description' => 'description',
             'meta' => [
-                'title' => 'meta-title',
                 'description' => 'meta-description',
                 'keywords' => 'meta key words',
             ],
             'is_active' => true,
+            'defaultFunc' => 3
         ];
     }
 
@@ -84,6 +84,25 @@ class SerializeBehaviorTest extends TestCase
         $model->on(News::EVENT_AFTER_INSERT, function (AfterSaveEvent $event) {
             $this->assertArrayHasKey('title', $event->changedAttributes);
             $this->assertNull($event->changedAttributes['title']);
+
+            $this->assertArrayHasKey('_data', $event->changedAttributes);
+            $this->assertNull($event->changedAttributes['_data']);
+
+            $this->assertArrayHasKey('id', $event->changedAttributes);
+            $this->assertNull($event->changedAttributes['id']);
+
+            $this->assertArrayHasKey('description', $event->changedAttributes);
+            $this->assertNull($event->changedAttributes['description']);
+
+            $this->assertArrayHasKey('meta', $event->changedAttributes);
+            $this->assertEquals(['keywords' => null, 'description' => null], $event->changedAttributes['meta']);
+
+            $this->assertArrayHasKey('meta_keywords', $event->changedAttributes);
+            $this->assertNull($event->changedAttributes['meta_keywords']);
+
+            $this->assertArrayNotHasKey('is_active', $event->changedAttributes);
+
+            $this->assertArrayNotHasKey('defaultFunc', $event->changedAttributes);
         });
 
         $model->save(false);

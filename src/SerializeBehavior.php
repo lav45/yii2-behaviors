@@ -71,38 +71,21 @@ class SerializeBehavior extends AttributeBehavior implements AttributeChangeInte
      */
     public function afterSave(AfterSaveEvent $event)
     {
-        $diff = $this->array_diff_recursive($this->data, $this->oldData);
-        foreach (array_keys($diff) as $key) {
-            $event->changedAttributes[$key] = isset($this->oldData[$key]) ? $this->oldData[$key] : null;
+        foreach ($this->data as $key => $_) {
+            if (isset($this->oldData[$key])) {
+                $old = $this->oldData[$key];
+            } elseif ($this->attributes[$key] instanceof Closure || (is_array($this->attributes[$key]) && is_callable($this->attributes[$key]))) {
+                $old = call_user_func($this->attributes[$key]);
+            } else {
+                $old = $this->attributes[$key];
+            }
+            if ($this->data[$key] !== $old) {
+                $event->changedAttributes[$key] = $old;
+            }
         }
 
         $this->oldData = $this->data;
         $this->changeStorageAttribute = false;
-    }
-
-    /**
-     * @param array $arr1
-     * @param array $arr2
-     * @return array
-     */
-    protected function array_diff_recursive($arr1, $arr2)
-    {
-        $result = [];
-        foreach ($arr1 as $key => $value) {
-            if (isset($arr2[$key]) || array_key_exists($key, $arr2)) {
-                if (is_array($value)) {
-                    $recursiveDiff = $this->array_diff_recursive($value, $arr2[$key]);
-                    if (count($recursiveDiff)) {
-                        $result[$key] = $recursiveDiff;
-                    }
-                } elseif (in_array($value, $arr2, true) === false) {
-                    $result[$key] = $value;
-                }
-            } elseif (in_array($value, $arr2, true) === false) {
-                $result[$key] = $value;
-            }
-        }
-        return $result;
     }
 
     /**
@@ -113,10 +96,10 @@ class SerializeBehavior extends AttributeBehavior implements AttributeChangeInte
         $this->attributes = [];
         foreach ($data as $key => $value) {
             if (is_int($key)) {
-                $this->attributes[$value] = null;
-            } else {
-                $this->attributes[$key] = $value;
+                $key = $value;
+                $value = null;
             }
+            $this->attributes[$key] = $value;
         }
     }
 
