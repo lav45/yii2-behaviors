@@ -75,7 +75,7 @@ class SerializeBehavior extends AttributeBehavior implements AttributeChangeInte
             $attribute = $this->attributes[$key] ?? null;
             $old = $this->oldData[$key] ?? null;
 
-            if ($old === null) {
+            if ($old === null && $attribute !== null) {
                 if ($attribute instanceof Closure || (is_array($attribute) && is_callable($attribute))) {
                     $old = call_user_func($attribute);
                 } else {
