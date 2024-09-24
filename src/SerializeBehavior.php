@@ -72,13 +72,17 @@ class SerializeBehavior extends AttributeBehavior implements AttributeChangeInte
     public function afterSave(AfterSaveEvent $event)
     {
         foreach ($this->data as $key => $_) {
-            if (isset($this->oldData[$key])) {
-                $old = $this->oldData[$key];
-            } elseif ($this->attributes[$key] instanceof Closure || (is_array($this->attributes[$key]) && is_callable($this->attributes[$key]))) {
-                $old = call_user_func($this->attributes[$key]);
-            } else {
-                $old = $this->attributes[$key];
+            $attribute = $this->attributes[$key] ?? null;
+            $old = $this->oldData[$key] ?? null;
+
+            if ($old === null) {
+                if ($attribute instanceof Closure || (is_array($attribute) && is_callable($attribute))) {
+                    $old = call_user_func($attribute);
+                } else {
+                    $old = $attribute;
+                }
             }
+
             if ($this->data[$key] !== $old) {
                 $event->changedAttributes[$key] = $old;
             }
