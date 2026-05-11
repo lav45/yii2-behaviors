@@ -46,7 +46,7 @@ class CorrectDateBehavior extends AttributeBehavior
      */
     private function getFormatter()
     {
-        if (!$this->formatter instanceof Formatter) {
+        if ($this->formatter instanceof Formatter === false) {
             $this->formatter = Instance::ensure($this->formatter, Formatter::class);
         }
         return $this->formatter;
@@ -99,7 +99,7 @@ class CorrectDateBehavior extends AttributeBehavior
         }
         try {
             $formatter = $this->getFormatter();
-            return $formatter->asTimestamp($value . ' ' . $formatter->timeZone);
+            return (int)$formatter->asTimestamp($value . ' ' . $formatter->timeZone);
         } catch (Exception $e) {
             if ($this->throwException) {
                 throw $e;

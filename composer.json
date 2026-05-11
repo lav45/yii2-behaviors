@@ -11,7 +11,7 @@
     "license": "BSD-3-Clause",
     "authors": [
         {
-            "name": "Alexey Loban",
+            "name": "Aleksey Loban",
             "email": "lav451@gmail.com"
         }
     ],
@@ -27,7 +27,6 @@
     },
     "require-dev": {
         "cweagans/composer-patches": "^1.7",
-        "roave/security-advisories": "dev-latest",
         "phpunit/phpunit": "4.8.34",
         "ext-pdo_sqlite": "*"
     },
@@ -46,6 +45,7 @@
             "dev-master": "0.7.x-dev"
         },
         "composer-exit-on-patch-failure": true,
+        "audit": false,
         "patches": {
             "phpunit/phpunit": {
                 "Fix PHP 7 compatibility": "https://yiisoft.github.io/phpunit-patches/phpunit_php7.patch",
